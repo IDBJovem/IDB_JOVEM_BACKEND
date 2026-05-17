@@ -9,8 +9,11 @@ class ConfiguracoesAmbiente(BaseSettings):
     PORTA: int = 8000
 
     # Banco de Dados
-    SUPABASE_URL: str
-    SUPABASE_CHAVE_ANONIMA: str
+    DATABASE_HOST: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    PORT: int
 
     # APIs do Google
     GOOGLE_CLIENT_ID: str
