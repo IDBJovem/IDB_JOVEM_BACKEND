@@ -1,0 +1,3 @@
+# Coloque aqui a validação dos tokens JWT,
+# comunicação com as chaves públicas do Keycloak e verificações de papéis
+# Etc...
