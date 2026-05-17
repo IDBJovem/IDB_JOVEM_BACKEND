@@ -1,11 +1,12 @@
 from typing import Generator
+from urllib.parse import quote_plus
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from src.config import configuracoes
 
 DATABASE_URL = (
-    f"postgresql://{configuracoes.POSTGRES_USER}:{configuracoes.POSTGRES_PASSWORD}"
+    f"postgresql://{quote_plus(configuracoes.POSTGRES_USER)}:{quote_plus(configuracoes.POSTGRES_PASSWORD)}"
     f"@{configuracoes.DATABASE_HOST}:{configuracoes.PORT}/{configuracoes.POSTGRES_DB}"
 )
 

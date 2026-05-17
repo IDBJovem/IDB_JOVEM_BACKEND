@@ -16,15 +16,15 @@ class ConfiguracoesAmbiente(BaseSettings):
     PORT: int
 
     # APIs do Google
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = ""
 
     # Autenticação
-    KEYCLOAK_URL: str
-    KEYCLOAK_REALM: str
-    KEYCLOAK_CLIENT_ID: str
+    KEYCLOAK_URL: str = ""
+    KEYCLOAK_REALM: str = ""
+    KEYCLOAK_CLIENT_ID: str = ""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 configuracoes = ConfiguracoesAmbiente()
