@@ -6,18 +6,11 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from src.agenda.schema import EventoResponse, RespostaEventoAgenda, SolicitacaoEventoAgenda
+from src.shared.utils import extrair_token_bearer
 
 class RepositorioAgenda:
     def __init__(self, token_acesso: str = None):
         self.token_acesso = token_acesso
-
-    def _extrair_token(self) -> str | None:
-        if not self.token_acesso:
-            return None
-        token = self.token_acesso.strip()
-        if token.lower().startswith("bearer "):
-            return token[7:].strip()
-        return token
 
     def _adicionar_meses(self, data_base: datetime, meses: int) -> datetime:
         if meses <= 0:
@@ -154,7 +147,7 @@ class RepositorioAgenda:
         """
         Busca eventos no Google Calendar quando ha token; sem token retorna mock.
         """
-        token = self._extrair_token()
+        token = extrair_token_bearer(self.token_acesso)
 
         # Se não houver token (cliente não logou), manda dados simulados de teste
         if not token:
@@ -182,7 +175,7 @@ class RepositorioAgenda:
         return self._buscar_eventos_google(token, meses)
 
     def criar_evento(self, solicitacao: SolicitacaoEventoAgenda) -> RespostaEventoAgenda:
-        token = self._extrair_token()
+        token = extrair_token_bearer(self.token_acesso)
         if not token:
             raise RuntimeError("Token de acesso ausente")
         return self._criar_evento_google(token, solicitacao)
@@ -199,7 +192,7 @@ class RepositorioAgenda:
             raise RuntimeError("Falha ao excluir evento no Google Calendar") from erro
 
     def excluir_evento(self, id_google: str) -> None:
-        token = self._extrair_token()
+        token = extrair_token_bearer(self.token_acesso)
         if not token:
             raise RuntimeError("Token de acesso ausente")
         self._excluir_evento_google(token, id_google)
