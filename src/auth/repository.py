@@ -24,7 +24,7 @@ class RepositorioAuth:
 
         # Escopos unificados (Fluxo único para as 3 APIs do Google)
         self.escopos = [
-            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/calendar.events",
             "https://www.googleapis.com/auth/drive.readonly",
             "https://www.googleapis.com/auth/forms.responses.readonly"
         ]
