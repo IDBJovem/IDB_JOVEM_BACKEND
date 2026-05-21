@@ -1,5 +1,10 @@
 from pydantic import BaseModel
 from fastapi import FastAPI, status
+from starlette.middleware.sessions import SessionMiddleware
+from src.agenda.router import router as agenda_router
+from src.galeria.router import router as galeria_router
+from src.auth.router import router as auth_router
+from src.config import configuracoes
 
 from src.admin.routers import router as admin_router
 from src.atividade.routers import router as atividade_router
@@ -8,6 +13,11 @@ from src.eventos.routers import router as eventos_router
 from src.voluntario.routers import router as voluntario_router
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key=configuracoes.SECRET_KEY)
+
+app.include_router(auth_router)
+app.include_router(agenda_router)
+app.include_router(galeria_router)
 
 app.include_router(admin_router)
 app.include_router(atividade_router)

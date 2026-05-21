@@ -4,23 +4,25 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-class SchemaCriarEvento(BaseModel):
-    # Dados de entrada: Define os campos necessários para criar um evento.
 
+class BaseEvento(BaseModel):
     titulo: str
     data_inicio: datetime
     data_fim: datetime
 
-class SchemaRespostaEvento(BaseModel):
-    # Dados de saída: Define os campos que serão retornados após criar um evento.
 
+class RespostaEvento(BaseModel):
     id: int
     titulo: str
     data_inicio: datetime
     data_fim: datetime
     link_calendario: str
 
-class Config:
-    # Configuração para permitir a leitura direta dos modelos do SQLAlchemy.
+    class Config:
+        from_attributes = True
 
-    from_attributes = True
+class SolicitacaoEvento(BaseEvento):
+    pass
+
+class ContagemRespostaEvento(BaseModel):
+    pass
