@@ -8,7 +8,7 @@ class Voluntario(Base):
     voluntario_id   = Column(Integer, primary_key=True, autoincrement=True)
     nome            = Column(Text, nullable=False)
     email           = Column(Text, unique=True, nullable=False)
-    link_formulario = Column(Text, nullable=True)
+    resposta_id_formulario = Column(Text, nullable=True)
 
 
 class Trabalha(Base):
@@ -18,6 +18,6 @@ class Trabalha(Base):
     evento_id     = Column(Integer, ForeignKey("evento.evento_id"), primary_key=True)
     status        = Column(
         Text,
-        CheckConstraint("status IN ('pendente', 'confirmado', 'cancelado')"),
+        CheckConstraint("status IN ('pendente', 'aprovado', 'reprovado')"),
         nullable=False,
     )
