@@ -1,22 +1,33 @@
 from logging.config import fileConfig
+from urllib.parse import quote_plus
+import os
 
-from sqlalchemy import pool
-from sqlalchemy import create_engine
+from dotenv import load_dotenv
+from sqlalchemy import pool, create_engine
 from alembic import context
 
-from src.database import DATABASE_URL, Base
 
-import src.admin.models
-import src.atividade.models
-import src.banda_palestrante.models
-import src.eventos.models
-import src.produto.models
-import src.voluntario.models
+from src.database import Base
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+load_dotenv(".env", override=True)
+
+x_env = context.get_x_argument(as_dictionary=True).get("env", "local")
+
+if x_env == "prod":
+    user = quote_plus(os.environ.get("SUPABASE_USER", ""))
+    password = quote_plus(os.environ.get("SUPABASE_PASSWORD", "").strip())
+    host = os.environ.get("SUPABASE_HOST", "")
+    port = os.environ.get("SUPABASE_PORT", "5432")
+    db = os.environ.get("SUPABASE_DB", "")
+    DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{db}"
+else:
+    DATABASE_URL = os.environ.get("DATABASE_URL", "")
+
 
 target_metadata = Base.metadata
 
