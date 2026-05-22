@@ -20,6 +20,7 @@ class SolicitacaoEvento(BaseEvento):
 class RespostaEvento(BaseEvento):
     evento_id: int
     calendario_evento_id: str | None = None
+    nome_local: str
 
     class Config:
         from_attributes = True

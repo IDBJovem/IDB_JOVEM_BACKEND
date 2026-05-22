@@ -17,7 +17,7 @@ def listar_fotos(
     Rota para listar as fotos armazenadas no Google Drive por nome de pasta.
     """
     token = credenciais.credentials
-    
+
     if not token:
         raise HTTPException(status_code=401, detail="Token de acesso ausente")
 

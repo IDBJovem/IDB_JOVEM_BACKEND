@@ -28,6 +28,9 @@ class ServicoEvento:
             evento.local_longitude
         )
 
+        evento.nome_local = nome_local
+        evento = self.repositorio.salvar(evento)
+
         try:
             calendario_id = self.calendario.criar_evento(evento, nome_local)
             evento.calendario_evento_id = calendario_id
@@ -61,18 +64,18 @@ class ServicoEvento:
         validar_datas(evento.data_inicio, evento.data_fim)
         validar_coordenadas(evento.local_latitude, evento.local_longitude)
 
-        if evento.calendario_evento_id:
-            nome_local = self.mapa_servico.buscar_endereco_por_coordenadas(
-                evento.local_latitude,
-                evento.local_longitude
-            )
+        evento.nome_local = self.mapa_servico.buscar_endereco_por_coordenadas(
+            evento.local_latitude,
+            evento.local_longitude
+        )
 
+        if evento.calendario_evento_id:
             self.calendario.atualizar_evento(
                 evento.calendario_evento_id,
                 evento,
-                nome_local
+                evento.nome_local
             )
-        
+
         return self.repositorio.salvar(evento)
 
     def deletar_evento(self, evento_id: int):

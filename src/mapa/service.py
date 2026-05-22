@@ -13,9 +13,9 @@ class ServicoMapa:
     def buscar_endereco_por_coordenadas(self, latitude: float, longitude: float) -> str | None:
         parametros = {
             "format": "jsonv2",
-            "latitude": latitude,
-            "longitude": longitude,
-            "endereco": 1,
+            "lat": float(latitude),
+            "lon": float(longitude),
+            "addressdetails": 1,
         }
 
         url = f"{self.BASE_URL}/reverse?{urlencode(parametros)}"
