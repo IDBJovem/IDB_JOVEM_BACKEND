@@ -6,9 +6,6 @@ from dotenv import load_dotenv
 from sqlalchemy import pool, create_engine
 from alembic import context
 
-
-from src.database import Base
-
 config = context.config
 
 if config.config_file_name is not None:
@@ -28,6 +25,13 @@ if x_env == "prod":
 else:
     DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
+from src.database import Base
+import src.admin.models
+import src.atividade.models
+import src.banda_palestrante.models
+import src.eventos.models
+import src.produto.models
+import src.voluntario.models
 
 target_metadata = Base.metadata
 
