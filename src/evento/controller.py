@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, HTTPException, Depends, Header
+from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from src.database import obter_banco
@@ -12,16 +13,25 @@ from src.mapa.service import ServicoMapa
 
 
 router = APIRouter(prefix="/evento", tags=["evento"])
+security = HTTPBearer()
 
 
-def get_servico(db: Session = Depends(obter_banco), autorizacao: str = Header(None, alias="Authorization")):
+def get_servico(
+    db: Session = Depends(obter_banco),
+    credenciais: HTTPAuthorizationCredentials = Depends(security)
+):
+    if not credenciais:
+        raise HTTPException(status_code=401, detail="Token de acesso ausente.")
+
+    token = credenciais.credentials
+
     repositorio = RepositorioEvento(db)
-    calendario = ServicoCalendario(token_acesso=autorizacao)
+    calendario = ServicoCalendario(token_acesso=token)
     mapa = ServicoMapa()
     return ServicoEvento(repositorio, calendario, mapa)
 
 
-@router.post("/", response_model=SolicitacaoEvento, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=RespostaEvento, status_code=status.HTTP_201_CREATED)
 def criar_evento(
     solicitar: SolicitacaoEvento,
     servico: ServicoEvento = Depends(get_servico)
@@ -35,7 +45,7 @@ def criar_evento(
 
 @router.get("/", response_model=list[RespostaEvento])
 def buscar_todos_evento(servico: ServicoEvento = Depends(get_servico)):
-    return servico.listar_evento()
+    return servico.listar_eventos()
 
 
 @router.get("/{evento_id}", response_model=RespostaEvento)
@@ -72,22 +82,24 @@ def deletar_evento(evento_id: int, servico: ServicoEvento = Depends(get_servico)
 @router.get("/{evento_id}/galeria", response_model=list[RespostaDrive])
 def listar_galeria_evento(
     evento_id: int,
-    autorizacao: str = Header(None, alias="Authorization"),
+    credenciais: HTTPAuthorizationCredentials = Depends(security),
     servico: ServicoEvento = Depends(get_servico)
 ):
     try:
-        if not autorizacao:
+        if not credenciais:
             raise HTTPException(
                 status_code=401,
                 detail="Token de acesso ausente."
             )
+
+        token = credenciais.credentials
 
         evento = servico.buscar_evento(evento_id)
 
         if not evento.link_galeria:
             return []
 
-        drive = ServicoDrive(token_acesso=autorizacao)
+        drive = ServicoDrive(token_acesso=token)
 
         return drive.listar_fotos(evento.link_galeria)
 

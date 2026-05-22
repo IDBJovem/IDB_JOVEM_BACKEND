@@ -14,7 +14,7 @@ class RepositorioAtividade:
         return atividade
 
     def buscar_por_evento(self, evento_id) -> list[Atividade]:
-        return self.db.query(Atividade).filter(Atividade.evento_id == evento_id).all
+        return self.db.query(Atividade).filter(Atividade.evento_id == evento_id).all()
 
     def buscar_por_id(self, atividade_id: int) -> Atividade:
         return self.db.query(Atividade).filter(Atividade.atividade_id == atividade_id).first()

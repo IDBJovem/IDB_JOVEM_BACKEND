@@ -35,6 +35,7 @@ class ServicoEvento:
 
         except Exception as erro:
             print(f"Erro ao integrar com o Google Calendário: {erro}")
+            raise
 
         return evento
 
@@ -61,8 +62,17 @@ class ServicoEvento:
         validar_coordenadas(evento.local_latitude, evento.local_longitude)
 
         if evento.calendario_evento_id:
-            self.calendario.atualizar_evento(evento.calendario_evento_id, evento)
+            nome_local = self.mapa_servico.buscar_endereco_por_coordenadas(
+                evento.local_latitude,
+                evento.local_longitude
+            )
 
+            self.calendario.atualizar_evento(
+                evento.calendario_evento_id,
+                evento,
+                nome_local
+            )
+        
         return self.repositorio.salvar(evento)
 
     def deletar_evento(self, evento_id: int):

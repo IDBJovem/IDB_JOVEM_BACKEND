@@ -126,7 +126,7 @@ class ServicoCalendario:
 
         return dados.get("id")
 
-    def atualizar_evento(self, calendario_event_id, evento: SolicitacaoEvento):
+    def atualizar_evento(self, calendario_event_id, evento: SolicitacaoEvento, nome_local: str) -> str:
         token = self._extrair_token()
 
         if not token:
@@ -139,7 +139,7 @@ class ServicoCalendario:
 
         corpo = {
             "summary": evento.nome,
-            "location": evento.local,
+            "location": nome_local,
             "description": evento.descricao,
             "start": {"dateTime": evento.data_inicio.isoformat()},
             "end": {"dateTime": evento.data_fim.isoformat()}

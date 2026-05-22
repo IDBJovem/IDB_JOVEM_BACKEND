@@ -45,7 +45,7 @@ class ServicoAtividade:
         for campo, novo_valor in dados_mudanca.items():
             setattr(atividade, campo, novo_valor)
 
-        validar_datas(atividade.data_inicio, atividade.data_fim)
+        validar_datas(atividade.horario_inicio, atividade.horario_termino)
 
         return self.repositorio_atividade.salvar(atividade)
 
