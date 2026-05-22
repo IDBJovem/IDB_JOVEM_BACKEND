@@ -1,27 +1,22 @@
-from fastapi import APIRouter, Header, HTTPException, Query, Security, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 
 from src.agenda.repository import RepositorioAgenda
 from src.agenda.schema import EventoResponse, RespostaEventoAgenda, SolicitacaoEventoAgenda
+from src.security import verificar_roles
 
 # Criamos o roteador definindo o prefixo da URL e a "tag" para a documentação
 router = APIRouter(prefix="/agenda", tags=["Agenda do Google"])
 
-autenticacao_bearer = HTTPBearer(auto_error=False)
-
 @router.get("/eventos", response_model=list[EventoResponse])
 def listar_eventos(
-    autorizacao: str = Header(None, alias="Authorization"),
-    credenciais: HTTPAuthorizationCredentials = Security(autenticacao_bearer),
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
     meses: int = Query(6, ge=1, le=24),
 ):
     """
     Rota para listar os eventos da agenda em um intervalo de meses.
     """
     # 1. Instanciamos o repositório (passando o token do cabeçalho se existir)
-    token = autorizacao
-    if not token and credenciais:
-        token = f"Bearer {credenciais.credentials}"
+    token = google_autorizacao
     repositorio = RepositorioAgenda(token_acesso=token)
 
     # 2. Chamamos o método que busca os dados
@@ -34,15 +29,13 @@ def listar_eventos(
 @router.post("/eventos", response_model=RespostaEventoAgenda, status_code=status.HTTP_201_CREATED)
 def criar_evento(
     solicitacao: SolicitacaoEventoAgenda,
-    autorizacao: str = Header(None, alias="Authorization"),
-    credenciais: HTTPAuthorizationCredentials = Security(autenticacao_bearer),
+    usuario_logado: dict = Depends(verificar_roles(["admin", "superadmin"])),
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
 ):
     """
     Rota para criar um evento no Google Calendar.
     """
-    token = autorizacao
-    if not token and credenciais:
-        token = f"Bearer {credenciais.credentials}"
+    token = google_autorizacao
     if not token:
         raise HTTPException(status_code=401, detail="Token de acesso ausente")
 
@@ -56,15 +49,13 @@ def criar_evento(
 @router.delete("/eventos/{id_google}", status_code=status.HTTP_204_NO_CONTENT)
 def excluir_evento(
     id_google: str,
-    autorizacao: str = Header(None, alias="Authorization"),
-    credenciais: HTTPAuthorizationCredentials = Security(autenticacao_bearer),
+    usuario_logado: dict = Depends(verificar_roles(["admin", "superadmin"])),
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
 ):
     """
     Rota para excluir um evento no Google Calendar.
     """
-    token = autorizacao
-    if not token and credenciais:
-        token = f"Bearer {credenciais.credentials}"
+    token = google_autorizacao
     if not token:
         raise HTTPException(status_code=401, detail="Token de acesso ausente")
 

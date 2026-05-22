@@ -1,16 +1,17 @@
 from pydantic import BaseModel
-from fastapi import FastAPI, status
+from fastapi import Depends, FastAPI, status
 from starlette.middleware.sessions import SessionMiddleware
 from src.agenda.router import router as agenda_router
 from src.galeria.router import router as galeria_router
 from src.formulario.router import router as formulario_router
 from src.auth.router import router as auth_router
 from src.config import configuracoes
+from src.security import verificar_roles
 
 from src.admin.routers import router as admin_router
 from src.atividade.routers import router as atividade_router
 from src.banda_palestrante.routers import router as banda_palestrante_router
-from src.eventos.routers import router as eventos_router
+from src.eventos.router import router as eventos_router
 from src.voluntario.routers import router as voluntario_router
 
 app = FastAPI()
@@ -47,7 +48,10 @@ def health_check():
 
 
 @app.post("/events", status_code=status.HTTP_201_CREATED)
-def create_event(event: EventCreate):
+def create_event(
+    event: EventCreate,
+    usuario_logado: dict = Depends(verificar_roles(["admin", "superadmin"])),
+):
     return {
         "id": 1,
         "title": event.title,

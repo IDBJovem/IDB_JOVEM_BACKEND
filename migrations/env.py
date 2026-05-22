@@ -9,7 +9,7 @@ from src.database import DATABASE_URL, Base
 import src.admin.models
 import src.atividade.models
 import src.banda_palestrante.models
-import src.eventos.models
+import src.eventos.model
 import src.produto.models
 import src.voluntario.models
 

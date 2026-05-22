@@ -6,17 +6,26 @@ from pydantic import BaseModel
 
 
 class BaseEvento(BaseModel):
-    titulo: str
+    nome: str
+    descricao: str | None = None
+    local_latitude: float | None = None
+    local_longitude: float | None = None
     data_inicio: datetime
     data_fim: datetime
+    link_galeria: str | None = None
+    formulario_link: str | None = None
 
 
 class RespostaEvento(BaseModel):
-    id: int
-    titulo: str
+    evento_id: int
+    nome: str
+    descricao: str | None = None
+    local_latitude: float | None = None
+    local_longitude: float | None = None
     data_inicio: datetime
     data_fim: datetime
-    link_calendario: str
+    link_galeria: str | None = None
+    formulario_link: str | None = None
 
     class Config:
         from_attributes = True

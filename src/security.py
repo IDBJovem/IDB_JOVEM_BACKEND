@@ -3,18 +3,50 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
+from jwt import PyJWKClient, PyJWKClientError
+
+from src.config import configuracoes
 
 autenticacao_bearer = HTTPBearer()
 
-# URL de configuracao do seu Keycloak local (substitua pelo seu realm)
-URL_CONFIG_KEYCLOAK = "http://localhost:8080/admin/master/console/#/jovem"
+_JWKS_CLIENT: PyJWKClient | None = None
+_JWKS_URL: str | None = None
 
-# CHAVE_PUBLICA: chave publica do realm
-CHAVE_PUBLICA_KEYCLOAK = (
-    "-----BEGIN PUBLIC KEY-----\n"
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAucurtWzeEtsQRfsDdOmfeR5T6PM/6m2q+wmNHvPHO1mO/KQ+B59ksw49IksV313a3sD+y98SX0IZgTNSks+fZtpZLSd2dGFdMECbOh5GgUtZdLE8HhSxZAYGOup8A+oPEIJZCgMqMwXgnyBlamzoXH8F7zokwEHZQ0kjoh0JvamlYQ8Q3VKPn6dsCpdlIn8FYImF5ueNvkrLGuxqVW8qRqQfg40sZIJB6Ab7Sjw6BrVw4NoD0zSVsKRuKAhUVjLQQ8HKGpAJ+Lh0b+gRJKHqqfGIGBHkSgwXbXUOL84N3GdUNb9QJTapsxpAV0PCLcXkV49zpd0eE7A0qsb70TxfbQIDAQAB\n"
-    "-----END PUBLIC KEY-----"
-)
+
+def _parse_audiences(valor: str, client_id: str) -> list[str]:
+    audiencia: list[str] = []
+    if valor:
+        audiencia = [item.strip() for item in valor.split(",") if item.strip()]
+    if client_id and client_id not in audiencia:
+        audiencia.append(client_id)
+    if "account" not in audiencia:
+        audiencia.append("account")
+    return audiencia
+
+
+def _carregar_config_keycloak() -> tuple[str, str, str, list[str]]:
+    base_url = configuracoes.KEYCLOAK_URL.rstrip("/")
+    realm = configuracoes.KEYCLOAK_REALM
+    client_id = configuracoes.KEYCLOAK_CLIENT_ID
+
+    issuer = configuracoes.KEYCLOAK_ISSUER
+    if not issuer and base_url and realm:
+        issuer = f"{base_url}/realms/{realm}"
+
+    jwks_url = configuracoes.KEYCLOAK_JWKS_URL
+    if not jwks_url and issuer:
+        jwks_url = f"{issuer}/protocol/openid-connect/certs"
+
+    audiencia = _parse_audiences(configuracoes.KEYCLOAK_AUDIENCE, client_id)
+    return issuer, jwks_url, client_id, audiencia
+
+
+def _obter_cliente_jwks(jwks_url: str) -> PyJWKClient:
+    global _JWKS_CLIENT, _JWKS_URL
+    if _JWKS_CLIENT is None or _JWKS_URL != jwks_url:
+        _JWKS_CLIENT = PyJWKClient(jwks_url)
+        _JWKS_URL = jwks_url
+    return _JWKS_CLIENT
 
 
 async def obter_usuario_atual(
@@ -22,16 +54,28 @@ async def obter_usuario_atual(
 ):
     """Decodifica o token JWT enviado pelo front-end e valida as permissoes."""
     token = credenciais.credentials
+    issuer, jwks_url, client_id, audiencia = _carregar_config_keycloak()
+    if not issuer or not jwks_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Configuracao do Keycloak incompleta.",
+        )
 
     try:
-        # Valida a assinatura, a expiracao e o cliente alvo (audience) do token
-        payload_token = jwt.decode(
-            token,
-            CHAVE_PUBLICA_KEYCLOAK,
-            algorithms=["RS256"],
-            audience=["account", "jovem-backend"],
-        )
-        if payload_token.get("azp") != "jovem-backend":
+        # Valida a assinatura usando JWKS e confere issuer/audience
+        jwks_client = _obter_cliente_jwks(jwks_url)
+        signing_key = jwks_client.get_signing_key_from_jwt(token).key
+        decode_args = {
+            "key": signing_key,
+            "algorithms": ["RS256"],
+            "options": {"verify_aud": bool(audiencia), "verify_iss": True},
+            "issuer": issuer,
+        }
+        if audiencia:
+            decode_args["audience"] = audiencia
+        payload_token = jwt.decode(token, **decode_args)
+
+        if client_id and payload_token.get("azp") != client_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token invalido para este cliente.",
@@ -46,6 +90,11 @@ async def obter_usuario_atual(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token invalido ou assinatura incorreta."
+        ) from erro
+    except PyJWKClientError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Falha ao validar o token do Keycloak.",
         ) from erro
 
 
