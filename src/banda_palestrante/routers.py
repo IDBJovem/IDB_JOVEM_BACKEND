@@ -1,26 +1,16 @@
 # Aqui que fica as rotas HTTP (Endpoints) usando FastAPI.
 # Arquivo usado para comunicacao entre o front-end e o back-end.
 # Arquivo e meramente ilustrativo e deve ser ajustado de acordo com o nosso projeto.
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from src.banda_palestrante.schema import (
+    SchemaCriarBandaPalestrante,
+    SchemaRespostaBandaPalestrante,
+)
 from src.security import verificar_roles
 
 router = APIRouter(prefix="/banda-palestrante", tags=["banda_palestrante"])
-
-
-class SchemaCriarBandaPalestrante(BaseModel):
-    nome: str
-    link_foto: Optional[str]
-    profissao: Optional[str]
-
-
-class SchemaRespostaBandaPalestrante(BaseModel):
-    id: int
-    nome: str
-    link_foto: Optional[str]
-    profissao: Optional[str]
 
 
 BANCO_MOCK_BANDA_PALESTRANTE: List[SchemaRespostaBandaPalestrante] = [

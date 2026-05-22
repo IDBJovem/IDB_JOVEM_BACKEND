@@ -2,30 +2,13 @@
 # Arquivo usado para comunicacao entre o front-end e o back-end.
 # Arquivo e meramente ilustrativo e deve ser ajustado de acordo com o nosso projeto.
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from src.atividade.schema import SchemaCriarAtividade, SchemaRespostaAtividade
 from src.security import verificar_roles
 
 router = APIRouter(prefix="/atividades", tags=["atividades"])
-
-
-class SchemaCriarAtividade(BaseModel):
-    nome: str
-    descricao: Optional[str]
-    horario_inicio: datetime
-    horario_termino: datetime
-    evento_id: int
-
-
-class SchemaRespostaAtividade(BaseModel):
-    id: int
-    nome: str
-    descricao: Optional[str]
-    horario_inicio: datetime
-    horario_termino: datetime
-    evento_id: int
 
 
 BANCO_MOCK_ATIVIDADES: List[SchemaRespostaAtividade] = [

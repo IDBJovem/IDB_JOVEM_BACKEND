@@ -4,29 +4,14 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from src.admin.schema import (
+    SchemaAtualizarPermissoes,
+    SchemaCriarAdmin,
+    SchemaRespostaAdmin,
+)
 from src.security import verificar_roles
 
 router = APIRouter(prefix="/admin", tags=["admin"])
-
-
-class SchemaCriarAdmin(BaseModel):
-    nome: str
-    email: str
-    keycloak_id: str
-    roles: List[str] = ["admin"]
-
-
-class SchemaRespostaAdmin(BaseModel):
-    id: int
-    nome: str
-    email: str
-    keycloak_id: str
-    roles: List[str]
-
-
-class SchemaAtualizarPermissoes(BaseModel):
-    roles: List[str]
 
 
 BANCO_MOCK_ADMINS: List[SchemaRespostaAdmin] = [
