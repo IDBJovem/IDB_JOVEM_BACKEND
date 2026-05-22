@@ -26,7 +26,8 @@ class RepositorioAuth:
         self.escopos = [
             "https://www.googleapis.com/auth/calendar.events",
             "https://www.googleapis.com/auth/drive.readonly",
-            "https://www.googleapis.com/auth/forms.responses.readonly"
+            "https://www.googleapis.com/auth/forms.responses.readonly",
+            "https://www.googleapis.com/auth/forms.body.readonly"
         ]
 
     def _criar_fluxo_google(self, estado: str | None = None) -> Flow:
