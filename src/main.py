@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 
 from starlette.middleware.sessions import SessionMiddleware
+from src.agenda.router import router as agenda_router
+from src.galeria.router import router as galeria_router
+from src.formulario.router import router as formulario_router
+from src.auth.router import router as auth_router
 from src.config import configuracoes
 from src.auth.controller import router as auth_routers
 from src.evento.controller import router as evento_routers
@@ -11,6 +15,20 @@ from src.mapa.controller import router as mapa_routers
 app = FastAPI(title="IDB Jovem Backend")
 
 app.add_middleware(SessionMiddleware, secret_key=configuracoes.SECRET_KEY)
+
+app.include_router(auth_router)
+app.include_router(agenda_router)
+app.include_router(galeria_router)
+app.include_router(formulario_router)
+
+
+class EventCreate(BaseModel):
+    title: str
+    date: str
+    location: str
+    description: str | None = None
+    capacity: int | None = None
+
 
 @app.get("/")
 def read_root():
