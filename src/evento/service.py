@@ -42,7 +42,7 @@ class ServicoEvento:
 
         return evento
 
-    def listar_eventos(self):
+    def listar_evento(self):
         return self.repositorio.buscar_todos()
 
     def buscar_evento(self, evento_id: int):

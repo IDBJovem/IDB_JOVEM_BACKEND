@@ -10,7 +10,7 @@ router = APIRouter(prefix="/formulario", tags=["Formulario (Google Forms)"])
 autenticacao_bearer = HTTPBearer(auto_error=False)
 
 @router.get(
-    "/eventos/{evento_id}/inscricoes",
+    "/evento/{evento_id}/inscricoes",
     response_model=list[RespostaInscricaoFormulario],
 )
 def listar_inscricoes(

@@ -1,6 +1,6 @@
 # Modelo Base
 
-Utilize a estrutura e os códigos presentes na pasta `src/eventos` como base (template) para desenvolver os novos módulos do sistema. Esse módulo serve para ilustrar o fluxo correto da nossa arquitetura de camadas.
+Utilize a estrutura e os códigos presentes na pasta `src/evento` como base (template) para desenvolver os novos módulos do sistema. Esse módulo serve para ilustrar o fluxo correto da nossa arquitetura de camadas.
 
 Fique totalmente à vontade para modificar, expandir e adaptar as regras de acordo com as necessidades específicas do escopo que você estiver desenvolvendo.
 
@@ -94,7 +94,7 @@ Nenhuma função ou rota pode passar de **40 linhas de código**.
 
 ### Código Duplicado (`duplicate-code`)
 Copiar e colar blocos de código idênticos entre módulos diferentes vai travar o pipeline de CI/CD.
-*    **Errado:** Copiar uma função de formatação de data de `eventos/` para usar em `produtos/`.
+*    **Errado:** Copiar uma função de formatação de data de `evento/` para usar em `produtos/`.
 *    **Certo:** Mova a lógica repetida para o arquivo utilitário central `src/shared/utils.py` e apenas importe onde precisar.
 
 ---

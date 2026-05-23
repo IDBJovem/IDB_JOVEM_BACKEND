@@ -14,7 +14,7 @@ class BaseEvento(BaseModel):
 class SolicitacaoEvento(BaseEvento):
     """"
     Modelo para a solicitação de criação ou atualização de um evento.
-    Herda os campos básicos de BaseEventos.
+    Herda os campos básicos de Baseevento.
     """
 
 class RespostaEvento(BaseEvento):

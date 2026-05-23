@@ -4,7 +4,7 @@ from urllib.request import Request, urlopen
 
 from sqlalchemy.orm import Session
 
-from src.eventos.model import Evento
+from src.evento.model import Evento
 from src.formulario.schema import RespostaInscricaoFormulario
 from src.shared.utils import extrair_token_bearer
 from src.voluntario.models import Trabalha, Voluntario

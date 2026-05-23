@@ -1,6 +1,6 @@
 """
 Testes de integração para as rotas da aplicação.
-Cobre: rota raiz, health check e criação de eventos (POST /events).
+Cobre: rota raiz, health check e criação de evento (POST /events).
 """
 import pytest
 

@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel
 
-# Esse schema define o que o seu frontend vai receber quando pedir os eventos
+# Esse schema define o que o seu frontend vai receber quando pedir os evento
 class EventoResponse(BaseModel):
     id_google: str | None = None
     link_calendario: str | None = None

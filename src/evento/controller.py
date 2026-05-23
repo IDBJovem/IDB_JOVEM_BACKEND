@@ -45,7 +45,7 @@ def criar_evento(
 
 @router.get("/", response_model=list[RespostaEvento])
 def buscar_todos_evento(servico: ServicoEvento = Depends(get_servico)):
-    return servico.listar_eventos()
+    return servico.listar_evento()
 
 
 @router.get("/{evento_id}", response_model=RespostaEvento)

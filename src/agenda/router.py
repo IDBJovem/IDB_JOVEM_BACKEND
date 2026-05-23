@@ -9,14 +9,14 @@ router = APIRouter(prefix="/agenda", tags=["Agenda do Google"])
 
 autenticacao_bearer = HTTPBearer(auto_error=False)
 
-@router.get("/eventos", response_model=list[EventoResponse])
-def listar_eventos(
+@router.get("/evento", response_model=list[EventoResponse])
+def listar_evento(
     autorizacao: str = Header(None, alias="Authorization"),
     credenciais: HTTPAuthorizationCredentials = Security(autenticacao_bearer),
     meses: int = Query(6, ge=1, le=24),
 ):
     """
-    Rota para listar os eventos da agenda em um intervalo de meses.
+    Rota para listar os evento da agenda em um intervalo de meses.
     """
     # 1. Instanciamos o repositório (passando o token do cabeçalho se existir)
     token = autorizacao
@@ -25,13 +25,13 @@ def listar_eventos(
     repositorio = RepositorioAgenda(token_acesso=token)
 
     # 2. Chamamos o método que busca os dados
-    eventos = repositorio.listar_eventos(meses)
+    evento = repositorio.listar_evento(meses)
 
     # 3. Retornamos a lista (o FastAPI valida tudo usando o response_model)
-    return eventos
+    return evento
 
 
-@router.post("/eventos", response_model=RespostaEventoAgenda, status_code=status.HTTP_201_CREATED)
+@router.post("/evento", response_model=RespostaEventoAgenda, status_code=status.HTTP_201_CREATED)
 def criar_evento(
     solicitacao: SolicitacaoEventoAgenda,
     autorizacao: str = Header(None, alias="Authorization"),
@@ -53,7 +53,7 @@ def criar_evento(
         raise HTTPException(status_code=502, detail=str(erro)) from erro
 
 
-@router.delete("/eventos/{id_google}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/evento/{id_google}", status_code=status.HTTP_204_NO_CONTENT)
 def excluir_evento(
     id_google: str,
     autorizacao: str = Header(None, alias="Authorization"),

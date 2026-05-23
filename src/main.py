@@ -22,14 +22,6 @@ app.include_router(galeria_router)
 app.include_router(formulario_router)
 
 
-class EventCreate(BaseModel):
-    title: str
-    date: str
-    location: str
-    description: str | None = None
-    capacity: int | None = None
-
-
 @app.get("/")
 def read_root():
     return {"message": "IDB Jovem Backend está rodando!"}

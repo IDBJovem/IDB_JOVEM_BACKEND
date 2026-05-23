@@ -22,7 +22,7 @@ class RepositorioAgenda:
         dia = min(data_base.day, ultimo_dia)
         return data_base.replace(year=ano, month=mes, day=dia)
 
-    def _montar_url_eventos(self, data_inicio: datetime, data_fim: datetime) -> str:
+    def _montar_url_evento(self, data_inicio: datetime, data_fim: datetime) -> str:
         parametros = {
             "timeMin": data_inicio.isoformat(),
             "timeMax": data_fim.isoformat(),
@@ -86,10 +86,10 @@ class RepositorioAgenda:
             local=registro.get("location", ""),
         )
 
-    def _buscar_eventos_google(self, token: str, meses: int) -> list[EventoResponse]:
+    def _buscar_evento_google(self, token: str, meses: int) -> list[EventoResponse]:
         agora = datetime.now(timezone.utc)
         data_fim = self._adicionar_meses(agora, meses)
-        url = self._montar_url_eventos(agora, data_fim)
+        url = self._montar_url_evento(agora, data_fim)
         requisicao = Request(url)
         requisicao.add_header("Authorization", f"Bearer {token}")
         requisicao.add_header("Accept", "application/json")
@@ -101,12 +101,12 @@ class RepositorioAgenda:
 
         dados = json.loads(corpo)
         itens = dados.get("items", [])
-        eventos: list[EventoResponse] = []
+        evento: list[EventoResponse] = []
         for registro in itens:
             evento = self._converter_evento(registro)
             if evento:
-                eventos.append(evento)
-        return eventos
+                evento.append(evento)
+        return evento
 
     def _montar_corpo_evento(self, solicitacao: SolicitacaoEventoAgenda) -> dict:
         inicio = self._normalizar_data_hora(solicitacao.data_inicio)
@@ -143,9 +143,9 @@ class RepositorioAgenda:
             raise RuntimeError("Resposta invalida ao criar evento no Google Calendar")
         return evento
 
-    def listar_eventos(self, meses: int = 6) -> list[EventoResponse]:
+    def listar_evento(self, meses: int = 6) -> list[EventoResponse]:
         """
-        Busca eventos no Google Calendar quando ha token; sem token retorna mock.
+        Busca evento no Google Calendar quando ha token; sem token retorna mock.
         """
         token = extrair_token_bearer(self.token_acesso)
 
@@ -172,7 +172,7 @@ class RepositorioAgenda:
                 )
             ]
 
-        return self._buscar_eventos_google(token, meses)
+        return self._buscar_evento_google(token, meses)
 
     def criar_evento(self, solicitacao: SolicitacaoEventoAgenda) -> RespostaEventoAgenda:
         token = extrair_token_bearer(self.token_acesso)
