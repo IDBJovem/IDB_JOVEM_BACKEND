@@ -1,0 +1,11 @@
+[run]
+source = src
+
+[report]
+show_missing = True
+
+[xml]
+output = coverage.xml
+
+[html]
+directory = htmlcov
