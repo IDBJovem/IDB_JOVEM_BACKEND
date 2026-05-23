@@ -1,44 +1,28 @@
-from pydantic import BaseModel
-from fastapi import FastAPI, status
+from fastapi import FastAPI
+
 from starlette.middleware.sessions import SessionMiddleware
-from src.agenda.router import router as agenda_router
-from src.galeria.router import router as galeria_router
-from src.auth.router import router as auth_router
 from src.config import configuracoes
+from src.auth.controller import router as auth_routers
+from src.evento.controller import router as evento_routers
+from src.atividade.controller import router as atividade_routers
+from src.drive.controller import router as drive_routers
+from src.mapa.controller import router as mapa_routers
 
-app = FastAPI()
+app = FastAPI(title="IDB Jovem Backend")
+
 app.add_middleware(SessionMiddleware, secret_key=configuracoes.SECRET_KEY)
-
-app.include_router(auth_router)
-app.include_router(agenda_router)
-app.include_router(galeria_router)
-
-
-class EventCreate(BaseModel):
-    title: str
-    date: str
-    location: str
-    description: str | None = None
-    capacity: int | None = None
-
 
 @app.get("/")
 def read_root():
     return {"message": "IDB Jovem Backend está rodando!"}
-
 
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
 
 
-@app.post("/events", status_code=status.HTTP_201_CREATED)
-def create_event(event: EventCreate):
-    return {
-        "id": 1,
-        "title": event.title,
-        "date": event.date,
-        "location": event.location,
-        "description": event.description,
-        "capacity": event.capacity,
-    }
+app.include_router(auth_routers)
+app.include_router(evento_routers)
+app.include_router(atividade_routers)
+app.include_router(drive_routers)
+app.include_router(mapa_routers)
