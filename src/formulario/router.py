@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends, Header, HTTPException
 
 from src.database import obter_banco
 from src.formulario.repository import RepositorioFormulario
@@ -7,24 +6,19 @@ from src.formulario.schema import RespostaInscricaoFormulario
 
 router = APIRouter(prefix="/formulario", tags=["Formulario (Google Forms)"])
 
-autenticacao_bearer = HTTPBearer(auto_error=False)
-
 @router.get(
     "/eventos/{evento_id}/inscricoes",
     response_model=list[RespostaInscricaoFormulario],
 )
 def listar_inscricoes(
     evento_id: int,
-    autorizacao: str = Header(None, alias="Authorization"),
-    credenciais: HTTPAuthorizationCredentials = Security(autenticacao_bearer),
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
     db=Depends(obter_banco),
 ):
     """
     Rota para listar as inscricoes de voluntarios do evento.
     """
-    token = autorizacao
-    if not token and credenciais:
-        token = f"Bearer {credenciais.credentials}"
+    token = google_autorizacao
     if not token:
         raise HTTPException(status_code=401, detail="Token de acesso ausente")
 

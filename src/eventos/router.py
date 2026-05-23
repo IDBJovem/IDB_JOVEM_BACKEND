@@ -9,6 +9,7 @@ from src.database import obter_banco
 from src.eventos.repository import RepositorioEvento
 from src.eventos.model import Evento
 from src.eventos.schema import RespostaEvento, SolicitacaoEvento
+from src.security import verificar_roles
 
 router = APIRouter(
     prefix="/eventos",
@@ -21,7 +22,11 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED
 )
 
-def criar_evento(request: SolicitacaoEvento, db: Session = Depends(obter_banco)):
+def criar_evento(
+    request: SolicitacaoEvento,
+    db: Session = Depends(obter_banco),
+    usuario_logado: dict = Depends(verificar_roles(["admin", "superadmin"])),
+):
 
     eventos = RepositorioEvento.save(db, Evento(**request.model_dump()))
 
