@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -10,6 +10,7 @@ from src.calendario.service import ServicoCalendario
 from src.drive.schema import RespostaDrive
 from src.drive.service import ServicoDrive
 from src.mapa.service import ServicoMapa
+from src.security import verificar_roles
 
 
 router = APIRouter(prefix="/evento", tags=["evento"])
@@ -18,23 +19,24 @@ security = HTTPBearer()
 
 def get_servico(
     db: Session = Depends(obter_banco),
-    credenciais: HTTPAuthorizationCredentials = Depends(security)
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
 ):
-    if not credenciais:
-        raise HTTPException(status_code=401, detail="Token de acesso ausente.")
+    if not google_autorizacao:
+        raise HTTPException(status_code=401, detail="Token Google ausente.")
 
-    token = credenciais.credentials
-
+    token_google = google_autorizacao.replace("Bearer ", "")
     repositorio = RepositorioEvento(db)
-    calendario = ServicoCalendario(token_acesso=token)
+    calendario = ServicoCalendario(token_acesso=token_google)
     mapa = ServicoMapa()
+
     return ServicoEvento(repositorio, calendario, mapa)
 
 
 @router.post("/", response_model=RespostaEvento, status_code=status.HTTP_201_CREATED)
 def criar_evento(
     solicitar: SolicitacaoEvento,
-    servico: ServicoEvento = Depends(get_servico)
+    servico: ServicoEvento = Depends(get_servico),
+    _: dict = Depends(verificar_roles(["admin", "superadmin"]))
 ):
     try:
         return servico.criar_evento(solicitar)
@@ -62,7 +64,8 @@ def buscar_evento_id(evento_id: int, servico: ServicoEvento = Depends(get_servic
 def atualizar_evento(
     evento_id: int,
     solicitar: SolicitacaoEvento,
-    servico: ServicoEvento = Depends(get_servico)
+    servico: ServicoEvento = Depends(get_servico),
+    _: dict = Depends(verificar_roles(["admin", "superadmin"]))
 ):
     try:
         return servico.atualizar_evento(evento_id, solicitar)
@@ -72,7 +75,11 @@ def atualizar_evento(
 
 
 @router.delete("/{evento_id}", status_code=204)
-def deletar_evento(evento_id: int, servico: ServicoEvento = Depends(get_servico)):
+def deletar_evento(
+    evento_id: int,
+    servico: ServicoEvento = Depends(get_servico),
+    _: dict = Depends(verificar_roles(["admin", "superadmin"]))
+):
     try:
         servico.deletar_evento(evento_id)
 
@@ -82,24 +89,22 @@ def deletar_evento(evento_id: int, servico: ServicoEvento = Depends(get_servico)
 @router.get("/{evento_id}/galeria", response_model=list[RespostaDrive])
 def listar_galeria_evento(
     evento_id: int,
-    credenciais: HTTPAuthorizationCredentials = Depends(security),
-    servico: ServicoEvento = Depends(get_servico)
+    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
+    servico: ServicoEvento = Depends(get_servico),
 ):
     try:
-        if not credenciais:
+        if not google_autorizacao:
             raise HTTPException(
                 status_code=401,
-                detail="Token de acesso ausente."
+                detail="Token Google ausente."
             )
-
-        token = credenciais.credentials
 
         evento = servico.buscar_evento(evento_id)
 
         if not evento.link_galeria:
             return []
 
-        drive = ServicoDrive(token_acesso=token)
+        drive = ServicoDrive(token_acesso=google_autorizacao)
 
         return drive.listar_fotos(evento.link_galeria)
 
