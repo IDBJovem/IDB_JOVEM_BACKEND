@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 from sqlalchemy import pool, create_engine
 from alembic import context
 
+from src.database import Base
+import src.admin.model
+import src.atividade.model
+import src.banda_palestrante.model
+import src.evento.model
+import src.produto.model
+import src.voluntario.models
+
 config = context.config
 
 if config.config_file_name is not None:
@@ -24,14 +32,6 @@ if x_env == "prod":
     DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{db}"
 else:
     DATABASE_URL = os.environ.get("DATABASE_URL", "")
-
-from src.database import Base
-import src.admin.model
-import src.atividade.models
-import src.banda_palestrante.model
-import src.evento.model
-import src.produto.model
-import src.voluntario.models
 
 target_metadata = Base.metadata
 

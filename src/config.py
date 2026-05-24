@@ -4,9 +4,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class ConfiguracoesAmbiente(BaseSettings):
-    # Se for cadastrado um valor no .env, ele deve ser declarado aqui
-    AMBIENTE: str = "desenvolvimento"
-    PORTA: int = 8000
 
     # Banco de Dados
     DATABASE_URL: str
@@ -23,6 +20,8 @@ class ConfiguracoesAmbiente(BaseSettings):
     KEYCLOAK_ISSUER: str = ""
     KEYCLOAK_JWKS_URL: str = ""
     KEYCLOAK_AUDIENCE: str = ""
+
+    SECRET_KEY: str = "dev-secret"
 
     SECRET_KEY: str = "dev-secret"
 

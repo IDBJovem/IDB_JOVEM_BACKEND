@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from starlette.middleware.sessions import SessionMiddleware
+from src.config import configuracoes
 from src.admin.controller import router as admin_router
 from src.banda_palestrante.controller import router as banda_palestrante_router
 from src.formulario.controller import router as formulario_router
@@ -11,7 +12,6 @@ from src.evento.controller import router as evento_routers
 from src.atividade.controller import router as atividade_routers
 from src.drive.controller import router as drive_routers
 from src.mapa.controller import router as mapa_routers
-from src.config import configuracoes
 
 app = FastAPI(title="IDB Jovem Backend")
 
