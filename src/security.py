@@ -92,9 +92,11 @@ async def obter_usuario_atual(
             detail="Token invalido ou assinatura incorreta."
         ) from erro
     except PyJWKClientError as erro:
+        print("ERRO JWKS:", repr(erro))
+        print("JWKS URL:", jwks_url)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Falha ao validar o token do Keycloak.",
+            detail=f"Falha ao validar o token do Keycloak: {erro}",
         ) from erro
 
 

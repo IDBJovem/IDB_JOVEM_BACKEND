@@ -1,16 +1,27 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 
-class SchemaCriarVoluntario(BaseModel):
+class BaseVoluntario(BaseModel):
     nome: str
     email: str
-    link_formulario: Optional[str]
+    resposta_id_formulario: str | None = None
 
 
-class SchemaRespostaVoluntario(BaseModel):
-    id: int
-    nome: str
-    email: str
-    link_formulario: Optional[str]
+class SolicitacaoVoluntario(BaseVoluntario):
+    pass
+
+
+class RespostaVoluntario(BaseVoluntario):
+    voluntario_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class RespostaTrabalhoVoluntario(BaseModel):
+    voluntario_id: int
+    evento_id: int
+    status: str
+
+    class Config:
+        from_attributes = True

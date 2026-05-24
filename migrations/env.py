@@ -26,11 +26,11 @@ else:
     DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 from src.database import Base
-import src.admin.models
+import src.admin.model
 import src.atividade.models
-import src.banda_palestrante.models
-import src.eventos.model
-import src.produto.models
+import src.banda_palestrante.model
+import src.evento.model
+import src.produto.model
 import src.voluntario.models
 
 target_metadata = Base.metadata

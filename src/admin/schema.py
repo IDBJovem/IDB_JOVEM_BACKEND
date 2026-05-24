@@ -1,22 +1,18 @@
-from typing import List
-
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
-class SchemaCriarAdmin(BaseModel):
+class BaseAdmin(BaseModel):
     nome: str
-    email: str
+    email: EmailStr
     keycloak_id: str
-    roles: List[str] = ["admin"]
 
 
-class SchemaRespostaAdmin(BaseModel):
-    id: int
-    nome: str
-    email: str
-    keycloak_id: str
-    roles: List[str]
+class SolicitacaoAdmin(BaseAdmin):
+    pass
 
 
-class SchemaAtualizarPermissoes(BaseModel):
-    roles: List[str]
+class RespostaAdmin(BaseAdmin):
+    admin_id: int
+
+    class Config:
+        from_attributes = True
