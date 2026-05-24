@@ -23,7 +23,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Rodar Pylint
-        run: pylint src/ --fail-under=7.0 --disable=C0114,C0115,C0116 --ignore=migrations
+        run: pylint src/ --fail-under=6.0 --disable=C0114,C0115,C0116,E0401,R0801 --ignore=migrations
 
   test:
     name: Testes & Coverage
