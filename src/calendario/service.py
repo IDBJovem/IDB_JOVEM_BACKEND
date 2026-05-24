@@ -145,10 +145,25 @@ class ServicoCalendario:
             "end": {"dateTime": evento.data_fim.isoformat()}
         }
 
-        requisicao = Request(url, data=json.dumps(corpo).encode("utf-8"), method="PUT")
+        requisicao = Request(url, data=json.dumps(corpo).encode("utf-8"), method="PATCH")
         requisicao.add_header("Authorization", f"Bearer {token}")
         requisicao.add_header("Content-Type", "application/json")
-        urlopen(requisicao, timeout=10)
+        try:
+            urlopen(requisicao, timeout=10)
+
+        except HTTPError as erro:
+
+            if erro.code == 410:
+                return
+
+            raise RuntimeError(
+                "Falha ao atualizar evento no Google Calendar"
+            ) from erro
+
+        except URLError as erro:
+            raise RuntimeError(
+                "Falha ao conectar no Google Calendar"
+            ) from erro
 
     def deletar_evento(self, calendario_event_id):
         token = self._extrair_token()
@@ -163,4 +178,19 @@ class ServicoCalendario:
 
         requisicao = Request(url, method="DELETE")
         requisicao.add_header("Authorization", f"Bearer {token}")
-        urlopen(requisicao, timeout=10)
+        try:
+            urlopen(requisicao, timeout=10)
+
+        except HTTPError as erro:
+
+            if erro.code == 410:
+                return
+
+            raise RuntimeError(
+                "Falha ao deletar evento no Google Calendar"
+            ) from erro
+
+        except URLError as erro:
+            raise RuntimeError(
+                "Falha ao conectar no Google Calendar"
+            ) from erro

@@ -23,7 +23,6 @@ enable=
       singleton-comparison,
       used-before-assignment,
       attribute-defined-outside-init,
-      ungrouped-imports,
       global-variable-not-assigned,
       global-variable-undefined,
       line-too-long,
@@ -45,7 +44,7 @@ callbacks=cb_,_cb
 
 [FORMAT]
 
-max-line-length=100
+max-line-length=120
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 single-line-if-stmt=no
 max-module-lines=1000

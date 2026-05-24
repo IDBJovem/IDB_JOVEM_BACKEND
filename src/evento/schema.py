@@ -10,6 +10,7 @@ class BaseEvento(BaseModel):
     data_inicio: datetime
     data_fim: datetime
     link_galeria: str | None = None
+    formulario_link: str | None = None
 
 class SolicitacaoEvento(BaseEvento):
     """"
@@ -20,7 +21,7 @@ class SolicitacaoEvento(BaseEvento):
 class RespostaEvento(BaseEvento):
     evento_id: int
     calendario_evento_id: str | None = None
-    nome_local: str
+    nome_local: str | None = None
 
     class Config:
         from_attributes = True

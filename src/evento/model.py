@@ -14,4 +14,5 @@ class Evento(Base):
     data_inicio          = Column(DateTime(timezone=True), nullable=False)
     data_fim             = Column(DateTime(timezone=True), nullable=False)
     link_galeria         = Column(Text, nullable=True)
-    nome_local = Column(Text, nullable=True)
+    nome_local           = Column(Text, nullable=True)
+    formulario_link      = Column(Text, nullable=True)

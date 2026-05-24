@@ -17,9 +17,14 @@ class ConfiguracoesAmbiente(BaseSettings):
     KEYCLOAK_URL: str = ""
     KEYCLOAK_REALM: str = ""
     KEYCLOAK_CLIENT_ID: str = ""
+    KEYCLOAK_ISSUER: str = ""
+    KEYCLOAK_JWKS_URL: str = ""
+    KEYCLOAK_AUDIENCE: str = ""
 
     SECRET_KEY: str = "dev-secret"
-    
+
+    SECRET_KEY: str = "dev-secret"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 configuracoes = ConfiguracoesAmbiente()
