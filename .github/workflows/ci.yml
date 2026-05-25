@@ -89,3 +89,56 @@ jobs:
           sleep 5
           curl --fail http://localhost:8000/ || (docker logs backend_test && exit 1)
           docker stop backend_test
+endpoint-tests:
+    name: Testes de Endpoint (Container)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Build da imagem Docker
+        run: docker build -t idb-jovem-backend:${{ github.sha }} .
+
+      - name: Subir container da aplicação
+        run: |
+          docker run -d \
+            --name backend_endpoint \
+            -p 8000:8000 \
+            -e DATABASE_URL=postgresql://test:test@localhost:5432/test \
+            -e POSTGRES_USER=test \
+            -e POSTGRES_PASSWORD=test \
+            -e POSTGRES_DB=test \
+            -e DATABASE_HOST=localhost \
+            -e PORT=5432 \
+            -e DEBUG=False \
+            -e SECRET_KEY=test-secret-key \
+            idb-jovem-backend:${{ github.sha }}
+
+      - name: Aguardar container estar pronto
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8000/health; then
+              echo "Container pronto!"
+              exit 0
+            fi
+            echo "Tentativa $i/15 — aguardando 2s..."
+            sleep 2
+          done
+          docker logs backend_endpoint
+          exit 1
+
+      - name: Rodar testes de endpoint contra o container
+        run: pytest tests/endpoint/ -v -m endpoint
+
+      - name: Parar container
+        if: always()
+        run: docker stop backend_endpoint || true
