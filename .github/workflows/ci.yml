@@ -13,15 +13,12 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
       - name: Configurar Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Instalar dependências
         run: pip install -r requirements.txt
-
       - name: Rodar Pylint
         run: pylint src/ --fail-under=6.0 --disable=C0114,C0115,C0116,E0401,R0801 --ignore=migrations
 
@@ -32,15 +29,12 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
       - name: Configurar Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Instalar dependências
         run: pip install -r requirements.txt
-
       - name: Criar .env para os testes
         run: |
           cat <<ENVEOF > .env
@@ -52,10 +46,8 @@ jobs:
           DATABASE_URL=postgresql://test:test@localhost:5432/test
           DEBUG=False
           ENVEOF
-
       - name: Rodar Pytest com Coverage
         run: pytest
-
       - name: Publicar relatório de Coverage
         uses: actions/upload-artifact@v4
         with:
@@ -69,10 +61,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
       - name: Build da imagem Docker
         run: docker build -t idb-jovem-backend:${{ github.sha }} .
-
       - name: Smoke test do container
         run: |
           docker run -d \
@@ -89,25 +79,22 @@ jobs:
           sleep 5
           curl --fail http://localhost:8000/ || (docker logs backend_test && exit 1)
           docker stop backend_test
-endpoint-tests:
+
+  endpoint-tests:
     name: Testes de Endpoint (Container)
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
       - name: Configurar Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Instalar dependências
         run: pip install -r requirements.txt
-
       - name: Build da imagem Docker
         run: docker build -t idb-jovem-backend:${{ github.sha }} .
-
       - name: Subir container da aplicação
         run: |
           docker run -d \
@@ -122,11 +109,10 @@ endpoint-tests:
             -e DEBUG=False \
             -e SECRET_KEY=test-secret-key \
             idb-jovem-backend:${{ github.sha }}
-
       - name: Aguardar container estar pronto
         run: |
           for i in $(seq 1 15); do
-            if curl -sf http://localhost:8000/health; then
+            if curl -sf http://localhost:8000/health\; then
               echo "Container pronto!"
               exit 0
             fi
@@ -135,10 +121,8 @@ endpoint-tests:
           done
           docker logs backend_endpoint
           exit 1
-
       - name: Rodar testes de endpoint contra o container
         run: pytest tests/endpoint/ -v -m endpoint
-
       - name: Parar container
         if: always()
         run: docker stop backend_endpoint || true
