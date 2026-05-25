@@ -112,11 +112,11 @@ jobs:
       - name: Aguardar container estar pronto
         run: |
           for i in $(seq 1 15); do
-            if curl -sf http://localhost:8000/health\; then
+            if curl -sf http://localhost:8000/health; then
               echo "Container pronto!"
               exit 0
             fi
-            echo "Tentativa $i/15 — aguardando 2s..."
+            echo "Tentativa $i/15 - aguardando 2s..."
             sleep 2
           done
           docker logs backend_endpoint
