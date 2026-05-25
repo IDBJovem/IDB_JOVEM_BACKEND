@@ -1,4 +1,4 @@
-from src.voluntario.models import Voluntario
+from src.voluntario.models import Voluntario, Trabalha
 from src.voluntario.repository import RepositorioVoluntario
 from src.voluntario.schema import SolicitacaoVoluntario
 
@@ -42,12 +42,21 @@ class ServicoVoluntario:
         if status not in STATUS_VALIDOS:
             raise ValueError("Status inválido. Use: pendente, aprovado ou reprovado.")
 
+        voluntario = self.repositorio.buscar_por_id(voluntario_id)
+        if not voluntario:
+            raise ValueError("Voluntário não encontrado.")
+
         trabalho = self.repositorio.buscar_trabalho(voluntario_id, evento_id)
 
         if not trabalho:
-            raise ValueError("Inscrição do voluntário nesse evento não encontrada.")
+            trabalho = Trabalha(
+                voluntario_id=voluntario_id,
+                evento_id=evento_id,
+                status=status,
+            )
+        else:
+            trabalho.status = status
 
-        trabalho.status = status
         return self.repositorio.salvar_trabalho(trabalho)
 
     def contar_voluntarios_evento(self, evento_id: int):
