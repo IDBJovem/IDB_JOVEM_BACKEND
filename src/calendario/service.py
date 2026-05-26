@@ -18,7 +18,7 @@ class ServicoCalendario:
             return token[7:].strip()
         return token
 
-    def _montar_url_eventos(self) -> str:
+    def _montar_url_evento(self) -> str:
         parametros = {
             "timeMin": datetime.now(timezone.utc).isoformat(),
             "maxResults": 10,
@@ -50,8 +50,8 @@ class ServicoCalendario:
             local=registro.get("location", ""),
         )
 
-    def _buscar_eventos_google(self, token: str) -> list[RespostaEvento]:
-        url = self._montar_url_eventos()
+    def _buscar_evento_google(self, token: str) -> list[RespostaEvento]:
+        url = self._montar_url_evento()
         requisicao = Request(url)
         requisicao.add_header("Authorization", f"Bearer {token}")
         requisicao.add_header("Accept", "application/json")
@@ -63,16 +63,16 @@ class ServicoCalendario:
 
         dados = json.loads(corpo)
         itens = dados.get("items", [])
-        eventos: list[RespostaEvento] = []
+        evento: list[RespostaEvento] = []
         for registro in itens:
             evento = self._converter_evento(registro)
             if evento:
-                eventos.append(evento)
-        return eventos
+                evento.append(evento)
+        return evento
 
-    def listar_eventos(self) -> list[RespostaEvento]:
+    def listar_evento(self) -> list[RespostaEvento]:
         """
-        Busca os eventos. Por enquanto, simula a resposta do Google Calendar.
+        Busca os evento. Por enquanto, simula a resposta do Google Calendar.
         """
         token = self._extrair_token()
 
@@ -96,7 +96,7 @@ class ServicoCalendario:
                 )
             ]
 
-        return self._buscar_eventos_google(token)
+        return self._buscar_evento_google(token)
 
     def criar_evento(self, evento: SolicitacaoEvento, nome_local: str) -> str:
         token = self._extrair_token()

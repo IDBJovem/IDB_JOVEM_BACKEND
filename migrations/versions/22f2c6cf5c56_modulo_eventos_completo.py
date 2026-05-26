@@ -1,4 +1,4 @@
-"""modulo eventos completo
+"""modulo evento completo
 
 Revision ID: 22f2c6cf5c56
 Revises: 90c4a81f2691

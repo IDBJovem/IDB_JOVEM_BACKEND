@@ -1,4 +1,4 @@
-"""modulo eventos completo
+"""modulo evento completo
 
 Revision ID: dbcd27cf1b1e
 Revises: a99f0a03cc07
