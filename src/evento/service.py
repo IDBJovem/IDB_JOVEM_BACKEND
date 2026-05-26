@@ -85,3 +85,12 @@ class ServicoEvento:
             self.calendario.deletar_evento(evento.calendario_evento_id)
 
         self.repositorio.deletar(evento)
+
+    def pesquisar_eventos(self, termo: str):
+        termo = termo.strip()
+
+        if len(termo) < 2:
+            return []
+
+        return self.repositorio.pesquisar_por_nome(termo)
+    

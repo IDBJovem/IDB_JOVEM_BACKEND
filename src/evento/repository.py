@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from src.evento.model import Evento
 
 
@@ -25,3 +26,17 @@ class RepositorioEvento:
         if evento is not None:
             self.db.delete(evento)
             self.db.commit()
+
+    def pesquisar_por_nome(self, termo: str) -> list[Evento]:
+        sql = text("""
+            SELECT *
+            FROM evento
+            WHERE similarity(nome, :termo) > 0.2
+            OR nome ILIKE :termo_like
+            ORDER BY similarity(nome, :termo) DESC
+        """)
+
+        return self.db.query(Evento).from_statement(sql).params(
+            termo=termo,
+            termo_like=f"%{termo}%"
+        ).all()

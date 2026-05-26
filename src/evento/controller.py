@@ -1,5 +1,5 @@
-from fastapi import APIRouter, status, HTTPException, Depends, Header
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, status, HTTPException, Depends, Header, Query
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
 from src.database import obter_banco
@@ -43,7 +43,13 @@ def criar_evento(
 
     except ValueError as erro:
         raise HTTPException(status_code=400, detail= str(erro)) from erro
-
+    
+@router.get("/buscar", response_model=list[RespostaEvento])
+def pesquisar_eventos(
+    termo: str = Query(..., min_length=2),
+    servico: ServicoEvento = Depends(get_servico)
+):
+    return servico.pesquisar_eventos(termo)
 
 @router.get("/", response_model=list[RespostaEvento])
 def buscar_todos_evento(servico: ServicoEvento = Depends(get_servico)):
