@@ -1,4 +1,9 @@
 services:
+  jovem-backend:
+    environment:
+      DATABASE_URL: ${SUPABASE_DATABASE_URL}
+    depends_on: !reset []
+
   keycloak:
     environment:
       KC_DB: postgres
