@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.database import obter_banco
@@ -9,14 +9,9 @@ from src.formulario.schema import RespostaInscricaoFormulario
 
 router = APIRouter(prefix="/formulario", tags=["Formulario"])
 
-
-def get_servico(
-    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
-):
-    if not google_autorizacao:
-        raise HTTPException(status_code=401, detail="Token de acesso ausente")
-
-    repositorio = RepositorioFormulario(token_acesso=google_autorizacao)
+def get_servico():
+    """Injeta a dependência do serviço de forma limpa, sem exigir cabeçalhos do front"""
+    repositorio = RepositorioFormulario()
     return ServicoFormulario(repositorio)
 
 

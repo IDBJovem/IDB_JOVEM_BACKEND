@@ -1,5 +1,7 @@
 import os
 from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from dotenv import load_dotenv
 
 # Carrega as variáveis do arquivo .env
@@ -61,3 +63,22 @@ class ServicoAuth:
             "access_token": credenciais.token,
             "refresh_token": credenciais.refresh_token,
         }
+
+    def obter_credenciais_validas(self, refresh_token: str) -> Credentials:
+        """
+        Recebe o refresh_token do .env (ou banco) e monta o objeto do Google.
+        Se o access_token antigo expirou, ele renova na hora de forma invisível.
+        """
+        creds = Credentials(
+            token=None,  # None para forçar a primeira busca
+            refresh_token=refresh_token,
+            token_uri=self.config_cliente["web"]["token_uri"],
+            client_id=self.id_cliente,
+            client_secret=self.segredo_cliente,
+            scopes=self.escopos
+        )
+
+        if not creds.valid:
+            creds.refresh(Request())
+
+        return creds

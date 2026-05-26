@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime, timezone
 import json
 from urllib.error import HTTPError, URLError
@@ -5,18 +6,26 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from src.calendario.schema import RespostaEvento, SolicitacaoEvento
+from src.auth.service import ServicoAuth  
 
 class ServicoCalendario:
-    def __init__(self, token_acesso: str = None):
-        self.token_acesso = token_acesso
+    def __init__(self):
+        self.refresh_token = os.getenv("GOOGLE_REFRESH_TOKEN")
+        self.servico_auth = ServicoAuth()
 
-    def _extrair_token(self) -> str | None:
-        if not self.token_acesso:
+    def _obter_token_valido(self) -> str | None:
+        """
+        Substitui o antigo _extrair_token.
+        Busca o refresh_token do .env, renova no Google se necessário e retorna o access_token ativo.
+        """
+        if not self.refresh_token:
             return None
-        token = self.token_acesso.strip()
-        if token.lower().startswith("bearer "):
-            return token[7:].strip()
-        return token
+
+        try:
+            credenciais = self.servico_auth.obter_credenciais_validas(self.refresh_token)
+            return credenciais.token  # Retorna a string do access_token limpa e renovada
+        except Exception as erro:
+            raise RuntimeError("Falha automática ao renovar credenciais do Google") from erro
 
     def _montar_url_evento(self) -> str:
         parametros = {
@@ -72,11 +81,11 @@ class ServicoCalendario:
 
     def listar_evento(self) -> list[RespostaEvento]:
         """
-        Busca os evento. Por enquanto, simula a resposta do Google Calendar.
+        Busca os eventos reais do Google usando o Refresh Token automático.
         """
-        token = self._extrair_token()
+        token = self._obter_token_valido()
 
-        # Se não houver token (cliente não logou), manda dados simulados de teste
+        # Se não houver token no .env (não configurado), mantém o mock de segurança
         if not token:
             return [
                 RespostaEvento(
@@ -99,7 +108,7 @@ class ServicoCalendario:
         return self._buscar_evento_google(token)
 
     def criar_evento(self, evento: SolicitacaoEvento, nome_local: str) -> str:
-        token = self._extrair_token()
+        token = self._obter_token_valido()
 
         if not token:
             return None
@@ -127,15 +136,15 @@ class ServicoCalendario:
         return dados.get("id")
 
     def atualizar_evento(self, calendario_event_id, evento: SolicitacaoEvento, nome_local: str) -> str:
-        token = self._extrair_token()
+        token = self._obter_token_valido()
 
         if not token:
             return
 
         url = (
-        "https://www.googleapis.com/calendar/v3/"
-        f"calendars/primary/events/{calendario_event_id}"
-    )
+            "https://www.googleapis.com/calendar/v3/"
+            f"calendars/primary/events/{calendario_event_id}"
+        )
 
         corpo = {
             "summary": evento.nome,
@@ -154,27 +163,22 @@ class ServicoCalendario:
         except HTTPError as erro:
 
             if erro.code == 410:
+
                 return
-
-            raise RuntimeError(
-                "Falha ao atualizar evento no Google Calendar"
-            ) from erro
-
+            raise RuntimeError("Falha ao atualizar evento no Google Calendar") from erro
         except URLError as erro:
-            raise RuntimeError(
-                "Falha ao conectar no Google Calendar"
-            ) from erro
+            raise RuntimeError("Falha ao conectar no Google Calendar") from erro
 
     def deletar_evento(self, calendario_event_id):
-        token = self._extrair_token()
+        token = self._obter_token_valido()
 
         if not token:
             return
 
         url = (
-        "https://www.googleapis.com/calendar/v3/"
-        f"calendars/primary/events/{calendario_event_id}"
-    )
+            "https://www.googleapis.com/calendar/v3/"
+            f"calendars/primary/events/{calendario_event_id}"
+        )
 
         requisicao = Request(url, method="DELETE")
         requisicao.add_header("Authorization", f"Bearer {token}")
@@ -184,13 +188,8 @@ class ServicoCalendario:
         except HTTPError as erro:
 
             if erro.code == 410:
+
                 return
-
-            raise RuntimeError(
-                "Falha ao deletar evento no Google Calendar"
-            ) from erro
-
+            raise RuntimeError("Falha ao deletar evento no Google Calendar") from erro
         except URLError as erro:
-            raise RuntimeError(
-                "Falha ao conectar no Google Calendar"
-            ) from erro
+            raise RuntimeError("Falha ao conectar no Google Calendar") from erro

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Header, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
 
 from src.drive.service import ServicoDrive
 from src.drive.schema import RespostaDrive
@@ -9,20 +9,13 @@ router = APIRouter(prefix="/galeria", tags=["Galeria do Google Drive"])
 @router.get("/fotos", response_model=list[RespostaDrive])
 def listar_fotos(
     pasta: str = Query(..., min_length=1),
-    google_autorizacao: str = Header(None, alias="X-Google-Authorization"),
     usuario_logado: dict = Depends(verificar_roles(["admin", "superadmin"])),
 ):
     """
     Lista as fotos armazenadas no Google Drive por nome de pasta.
+    Autenticação com o Google feita de forma automatizada pelo servidor.
     """
-
-    if not google_autorizacao:
-        raise HTTPException(
-            status_code=401,
-            detail="Token Google ausente"
-        )
-
-    servico = ServicoDrive(token_acesso=google_autorizacao)
+    servico = ServicoDrive()
 
     try:
         return servico.listar_fotos(pasta)

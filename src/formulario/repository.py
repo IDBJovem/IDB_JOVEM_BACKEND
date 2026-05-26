@@ -1,3 +1,4 @@
+import os
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -6,14 +7,25 @@ from sqlalchemy.orm import Session
 
 from src.evento.model import Evento
 from src.formulario.schema import RespostaInscricaoFormulario
-from src.shared.utils import extrair_token_bearer
+from src.auth.service import ServicoAuth
 from src.voluntario.models import Trabalha, Voluntario
 
 STATUS_PENDENTE = "pendente"
 
 class RepositorioFormulario:
-    def __init__(self, token_acesso: str = None):
-        self.token_acesso = token_acesso
+    def __init__(self):
+        self.refresh_token = os.getenv("GOOGLE_REFRESH_TOKEN")
+        self.servico_auth = ServicoAuth()
+
+    def _obter_token_valido(self) -> str:
+        """Busca o refresh_token do .env, renova no Google e retorna o access_token ativo."""
+        if not self.refresh_token:
+            raise RuntimeError("GOOGLE_REFRESH_TOKEN nao configurado no arquivo .env")
+        try:
+            credenciais = self.servico_auth.obter_credenciais_validas(self.refresh_token)
+            return credenciais.token
+        except Exception as erro:
+            raise RuntimeError("Falha automatica ao renovar credenciais do Google para o Forms") from erro
 
     def _extrair_formulario_id_link(self, link: str) -> str | None:
         if "/forms/d/" not in link:
@@ -170,9 +182,8 @@ class RepositorioFormulario:
         db: Session,
         evento_id: int,
     ) -> list[RespostaInscricaoFormulario]:
-        token = extrair_token_bearer(self.token_acesso)
-        if not token:
-            raise RuntimeError("Token de acesso ausente")
+        token = self._obter_token_valido()
+        
         evento = self._buscar_evento(db, evento_id)
         if not evento.formulario_link:
             raise ValueError("Evento sem formulario configurado")

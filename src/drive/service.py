@@ -1,15 +1,27 @@
+import os
 import json
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from src.drive.schema import RespostaDrive
-from src.shared.utils import extrair_token_bearer
+from src.auth.service import ServicoAuth
 
 class ServicoDrive:
 
-    def __init__(self, token_acesso: str | None = None):
-        self.token_acesso = token_acesso
+    def __init__(self):
+        self.refresh_token = os.getenv("GOOGLE_REFRESH_TOKEN")
+        self.servico_auth = ServicoAuth()
+
+    def _obter_token_valido(self) -> str:
+        """Busca o refresh_token do .env, renova no Google e retorna o access_token ativo."""
+        if not self.refresh_token:
+            raise RuntimeError("GOOGLE_REFRESH_TOKEN nao configurado no arquivo .env")
+        try:
+            credenciais = self.servico_auth.obter_credenciais_validas(self.refresh_token)
+            return credenciais.token
+        except Exception as erro:
+            raise RuntimeError("Falha automatica ao renovar credenciais do Google para o Drive") from erro
 
     def _montar_url_busca_pasta(self, nome_pasta: str) -> str:
         consulta = (
@@ -113,11 +125,7 @@ class ServicoDrive:
         return fotos
 
     def listar_fotos(self, nome_pasta: str) -> list[RespostaDrive]:
-
-        token = extrair_token_bearer(self.token_acesso)
-
-        if not token:
-            return []
+        token = self._obter_token_valido()
 
         id_pasta = self._buscar_pasta_id(token, nome_pasta)
 
