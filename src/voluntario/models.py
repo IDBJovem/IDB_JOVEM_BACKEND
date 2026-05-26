@@ -5,10 +5,9 @@ from src.database import Base
 class Voluntario(Base):
     __tablename__ = "voluntario"
 
-    voluntario_id   = Column(Integer, primary_key=True, autoincrement=True)
-    nome            = Column(Text, nullable=False)
-    email           = Column(Text, unique=True, nullable=False)
-    resposta_id_formulario = Column(Text, nullable=True)
+    voluntario_id = Column(Integer, primary_key=True, autoincrement=True)
+    nome          = Column(Text, nullable=False)
+    email         = Column(Text, unique=True, nullable=False)
 
 
 class Trabalha(Base):
@@ -21,3 +20,4 @@ class Trabalha(Base):
         CheckConstraint("status IN ('pendente', 'aprovado', 'reprovado')"),
         nullable=False,
     )
+    resposta_id   = Column(Text, nullable=True)

@@ -92,18 +92,15 @@ class RepositorioFormulario:
         db: Session,
         nome: str,
         email: str,
-        resposta_id: str,
     ) -> Voluntario:
         voluntario = db.query(Voluntario).filter(Voluntario.email == email).first()
         if voluntario:
             voluntario.nome = nome
-            voluntario.resposta_id_formulario = resposta_id
             db.add(voluntario)
             return voluntario
         voluntario = Voluntario(
             nome=nome,
             email=email,
-            resposta_id_formulario=resposta_id,
         )
         db.add(voluntario)
         db.flush()
@@ -114,6 +111,7 @@ class RepositorioFormulario:
         db: Session,
         voluntario_id: int,
         evento_id: int,
+        resposta_id: str,
     ) -> Trabalha:
         trabalho = (
             db.query(Trabalha)
@@ -124,11 +122,14 @@ class RepositorioFormulario:
             .first()
         )
         if trabalho:
+            trabalho.resposta_id = resposta_id
+            db.add(trabalho)
             return trabalho
         trabalho = Trabalha(
             voluntario_id=voluntario_id,
             evento_id=evento_id,
             status=STATUS_PENDENTE,
+            resposta_id=resposta_id,
         )
         db.add(trabalho)
         return trabalho
@@ -144,11 +145,12 @@ class RepositorioFormulario:
         email = self._extrair_texto_resposta(respostas_campos, contexto["id_email"])
         if not nome or not email or not resposta_id:
             return None
-        voluntario = self._salvar_voluntario(contexto["db"], nome, email, resposta_id)
+        voluntario = self._salvar_voluntario(contexto["db"], nome, email)
         trabalho = self._garantir_trabalho(
             contexto["db"],
             voluntario.voluntario_id,
             contexto["evento"].evento_id,
+            resposta_id,
         )
         return RespostaInscricaoFormulario(
             evento_id=contexto["evento"].evento_id,
