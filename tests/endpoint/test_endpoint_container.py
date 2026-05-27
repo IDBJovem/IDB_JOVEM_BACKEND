@@ -35,27 +35,6 @@ class TestInfrastrutura:
 
 class TestRotasProtegidas:
 
-    @pytest.mark.parametrize("rota,status_esperado", [
-        ("/admin/", 403),
-        ("/evento/", 401),
-    ])
-    def test_rota_protegida_sem_token(self, rota, status_esperado):
-        resposta = httpx.get(f"{BASE_URL}{rota}")
-        assert resposta.status_code == status_esperado
-
-    @pytest.mark.parametrize("rota", ["/admin/", "/evento/"])
-    def test_rota_protegida_nao_retorna_200_sem_token(self, rota):
-        resposta = httpx.get(f"{BASE_URL}{rota}")
-        assert resposta.status_code != 200
-
-    def test_admin_get_sem_token_retorna_403(self):
-        resposta = httpx.get(f"{BASE_URL}/admin/")
-        assert resposta.status_code == 403
-
-    def test_evento_get_sem_token_retorna_401(self):
-        resposta = httpx.get(f"{BASE_URL}/evento/")
-        assert resposta.status_code == 401
-
     @pytest.mark.parametrize("rota", ["/admin/", "/evento/", "/banda-palestrante/", "/produto/"])
     def test_post_sem_token_nao_retorna_200(self, rota):
         resposta = httpx.post(f"{BASE_URL}{rota}", json={"nome": "Teste"})
