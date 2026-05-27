@@ -91,6 +91,20 @@ jobs:
     needs: build
     if: ${{ !cancelled() }}
     continue-on-error: true
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -100,13 +114,23 @@ jobs:
           python-version: "3.11"
       - name: Instalar dependências
         run: pip install -r requirements.txt
+      - name: Aplicar migrations no Postgres do CI
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+          DATABASE_HOST: localhost
+          PORT: 5432
+          DEBUG: "False"
+        run: alembic upgrade head
       - name: Build da imagem Docker
         run: docker build -t idb-jovem-backend:${{ github.sha }} .
       - name: Subir container da aplicação
         run: |
           docker run -d \
             --name backend_endpoint \
-            -p 8000:8000 \
+            --network host \
             -e DATABASE_URL=postgresql://test:test@localhost:5432/test \
             -e POSTGRES_USER=test \
             -e POSTGRES_PASSWORD=test \
