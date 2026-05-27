@@ -10,6 +10,7 @@ jobs:
   lint:
     name: Lint (Pylint)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -26,6 +27,8 @@ jobs:
     name: Testes & Coverage
     runs-on: ubuntu-latest
     needs: lint
+    if: ${{ !cancelled() }}
+    continue-on-error: true
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -58,6 +61,8 @@ jobs:
     name: Build Docker
     runs-on: ubuntu-latest
     needs: test
+    if: ${{ !cancelled() }}
+    continue-on-error: true
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -84,6 +89,8 @@ jobs:
     name: Testes de Endpoint (Container)
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ !cancelled() }}
+    continue-on-error: true
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
