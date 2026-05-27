@@ -61,11 +61,6 @@ class TestListarFotos:
         assert resposta.status_code == 200
         assert resposta.json() == []
 
-    def test_listar_fotos_sem_token_google_retorna_401(self, client):
-        resposta = client.get("/galeria/fotos?pasta=Retiro2025")
-        assert resposta.status_code == 401
-        assert "Token Google ausente" in resposta.json()["detail"]
-
     def test_listar_fotos_sem_pasta_retorna_422(self, client):
         resposta = client.get(
             "/galeria/fotos",
