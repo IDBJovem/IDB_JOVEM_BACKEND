@@ -33,8 +33,6 @@ def callback_google(request: Request, codigo: str = Query(..., alias="code")):
     request.session.pop("google_estado", None)
     request.session.pop("google_verificador_codigo", None)
 
-    # IMPORTANTE: No futuro vai salvar o 'refresh_token' num banco de dados.
-    # Por enquanto, vamos printar no terminal.
     print("\n" + "="*40)
     print("SUCESSO! SEU REFRESH TOKEN É:")
     print(tokens_google.get("refresh_token"))
