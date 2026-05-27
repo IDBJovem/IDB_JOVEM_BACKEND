@@ -1,4 +1,3 @@
-# Coloque aqui funções utilitarias
 def validar_datas(valor_inicio, valor_fim):
     """
     Valida datas ou horários.

@@ -1,19 +1,13 @@
-# Classe para o mapeamento seguro do arquivo .env
-# Aqui q ficam as chaves de API, URLs de banco e credenciais de segurança
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class ConfiguracoesAmbiente(BaseSettings):
 
-    # Banco de Dados
     DATABASE_URL: str
 
-    # APIs do Google
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = ""
 
-    # Autenticação
     KEYCLOAK_URL: str = ""
     KEYCLOAK_REALM: str = ""
     KEYCLOAK_CLIENT_ID: str = ""

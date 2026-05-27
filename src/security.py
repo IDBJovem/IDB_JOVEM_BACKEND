@@ -62,7 +62,6 @@ async def obter_usuario_atual(
         )
 
     try:
-        # Valida a assinatura usando JWKS e confere issuer/audience
         jwks_client = _obter_cliente_jwks(jwks_url)
         signing_key = jwks_client.get_signing_key_from_jwt(token).key
         decode_args = {
@@ -98,23 +97,6 @@ async def obter_usuario_atual(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Falha ao validar o token do Keycloak: {erro}",
         ) from erro
-
-
-def verificar_role(role_exigida: str):
-    """Fabrica de dependencias para verificar papeis do Keycloak no token."""
-    def dependencia(usuario: dict = Depends(obter_usuario_atual)):
-        # O Keycloak costuma injetar as roles dentro de 'realm_access'
-        acesso_realm = usuario.get("realm_access", {})
-        roles_usuario = acesso_realm.get("roles", [])
-
-        if role_exigida not in roles_usuario:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Acesso negado. Requer o papel de: {role_exigida}"
-            )
-        return usuario
-    return dependencia
-
 
 def verificar_roles(roles_exigidas: list[str]):
     """Fabrica de dependencias para verificar multiplos papeis."""

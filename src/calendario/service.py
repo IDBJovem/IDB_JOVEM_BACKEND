@@ -23,7 +23,7 @@ class ServicoCalendario:
 
         try:
             credenciais = self.servico_auth.obter_credenciais_validas(self.refresh_token)
-            return credenciais.token  # Retorna a string do access_token limpa e renovada
+            return credenciais.token
         except Exception as erro:
             raise RuntimeError("Falha automática ao renovar credenciais do Google") from erro
 
@@ -85,7 +85,6 @@ class ServicoCalendario:
         """
         token = self._obter_token_valido()
 
-        # Se não houver token no .env (não configurado), mantém o mock de segurança
         if not token:
             return [
                 RespostaEvento(

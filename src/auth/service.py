@@ -4,17 +4,14 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from dotenv import load_dotenv
 
-# Carrega as variáveis do arquivo .env
 load_dotenv()
 
 class ServicoAuth:
     def __init__(self):
-        # Credenciais configuradas no Google Cloud
         self.id_cliente = os.getenv("GOOGLE_CLIENT_ID")
         self.segredo_cliente = os.getenv("GOOGLE_CLIENT_SECRET")
         self.uri_redirecionamento = os.getenv("GOOGLE_REDIRECT_URI")
 
-        # Formato que o Google exige
         self.config_cliente = {
             "web": {
                 "client_id": self.id_cliente,
@@ -24,7 +21,6 @@ class ServicoAuth:
             }
         }
 
-        # Escopos unificados (Fluxo único para as 3 APIs do Google)
         self.escopos = [
             "https://www.googleapis.com/auth/calendar.events",
             "https://www.googleapis.com/auth/drive.readonly",
@@ -44,7 +40,6 @@ class ServicoAuth:
         """Gera o link oficial do Google para o Admin clicar e autorizar"""
         fluxo = self._criar_fluxo_google()
 
-        # offline = pede o Refresh Token / consent = força o envio dele nos testes
         url_autorizacao, estado = fluxo.authorization_url(
             access_type="offline",
             prompt="consent"
