@@ -1,5 +1,3 @@
-"""Testes de integração para o módulo admin."""
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -9,9 +7,6 @@ from src.admin.controller import router, get_servico
 from src.security import obter_usuario_atual
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
 USUARIO_SUPERADMIN = {"sub": "uuid-superadmin", "realm_access": {"roles": ["superadmin"]}}
 USUARIO_ADMIN = {"sub": "uuid-admin", "realm_access": {"roles": ["admin", "superadmin"]}}
@@ -33,9 +28,6 @@ def client(mock_servico):
     app.dependency_overrides.clear()
 
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
 
 ADMIN_VALIDO = {
     "nome": "Admin Teste",
@@ -46,9 +38,6 @@ ADMIN_VALIDO = {
 RESPOSTA_ADMIN = {**ADMIN_VALIDO, "admin_id": 1}
 
 
-# ---------------------------------------------------------------------------
-# POST /admin/
-# ---------------------------------------------------------------------------
 
 class TestCriarAdmin:
 
@@ -81,9 +70,6 @@ class TestCriarAdmin:
         assert resposta.status_code == 422
 
 
-# ---------------------------------------------------------------------------
-# GET /admin/
-# ---------------------------------------------------------------------------
 
 class TestListarAdmins:
 
@@ -114,9 +100,6 @@ class TestListarAdmins:
         assert len(resposta.json()) == 3
 
 
-# ---------------------------------------------------------------------------
-# GET /admin/{admin_id}
-# ---------------------------------------------------------------------------
 
 class TestBuscarAdmin:
 
@@ -143,9 +126,6 @@ class TestBuscarAdmin:
         assert resposta.json()["admin_id"] == admin_id
 
 
-# ---------------------------------------------------------------------------
-# DELETE /admin/{admin_id}
-# ---------------------------------------------------------------------------
 
 class TestDeletarAdmin:
 

@@ -1,5 +1,3 @@
-"""Testes de integração para o módulo atividade."""
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -8,9 +6,6 @@ from unittest.mock import MagicMock
 from src.atividade.controller import router, get_servico
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def mock_servico():
@@ -25,9 +20,6 @@ def client(mock_servico):
     return TestClient(app)
 
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
 
 ATIVIDADE_VALIDA = {
     "nome": "Palestra Principal",
@@ -47,9 +39,6 @@ ATIVIDADE_MINIMA = {
 RESPOSTA_ATIVIDADE_MINIMA = {**ATIVIDADE_MINIMA, "descricao": None, "atividade_id": 2, "evento_id": 1}
 
 
-# ---------------------------------------------------------------------------
-# POST /evento/{evento_id}/atividade
-# ---------------------------------------------------------------------------
 
 class TestCriarAtividade:
 
@@ -62,7 +51,6 @@ class TestCriarAtividade:
         mock_servico.criar_atividade.assert_called_once()
 
     def test_criar_atividade_sem_descricao(self, client, mock_servico):
-        """descricao é opcional — deve aceitar sem ela."""
         mock_servico.criar_atividade.return_value = RESPOSTA_ATIVIDADE_MINIMA
         resposta = client.post("/evento/1/atividade", json=ATIVIDADE_MINIMA)
         assert resposta.status_code == 201
@@ -93,9 +81,6 @@ class TestCriarAtividade:
         assert resposta.json()["evento_id"] == evento_id
 
 
-# ---------------------------------------------------------------------------
-# GET /evento/{evento_id}/atividade
-# ---------------------------------------------------------------------------
 
 class TestListarAtividades:
 
@@ -129,9 +114,6 @@ class TestListarAtividades:
         mock_servico.listar_atividades.assert_called_with(evento_id)
 
 
-# ---------------------------------------------------------------------------
-# GET /evento/atividade/{atividade_id}
-# ---------------------------------------------------------------------------
 
 class TestBuscarAtividade:
 
@@ -157,9 +139,6 @@ class TestBuscarAtividade:
         assert resposta.json()["atividade_id"] == atividade_id
 
 
-# ---------------------------------------------------------------------------
-# PUT /evento/atividade/{atividade_id}
-# ---------------------------------------------------------------------------
 
 class TestAtualizarAtividade:
 
@@ -189,9 +168,6 @@ class TestAtualizarAtividade:
         assert resposta.status_code == 422
 
 
-# ---------------------------------------------------------------------------
-# DELETE /evento/atividade/{atividade_id}
-# ---------------------------------------------------------------------------
 
 class TestDeletarAtividade:
 

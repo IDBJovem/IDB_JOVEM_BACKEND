@@ -1,10 +1,3 @@
-"""Testes de integração para o módulo formulario (Google Forms).
-
-Estratégia: get_servico existe mas lê o header X-Google-Authorization
-diretamente. Fazemos override da dependência inteira para ignorar
-essa lógica e injetar o mock diretamente.
-"""
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -13,9 +6,6 @@ from unittest.mock import MagicMock
 from src.formulario.controller import router, get_servico
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def mock_servico():
@@ -32,9 +22,7 @@ def client(mock_servico):
     app.dependency_overrides.clear()
 
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
+
 
 INSCRICAO_RESPOSTA = {
     "voluntario_id": 1,
@@ -47,9 +35,6 @@ INSCRICAO_RESPOSTA = {
 }
 
 
-# ---------------------------------------------------------------------------
-# GET /formulario/eventos/{evento_id}/inscricoes
-# ---------------------------------------------------------------------------
 
 class TestListarInscricoes:
 
@@ -69,7 +54,6 @@ class TestListarInscricoes:
         assert resposta.json() == []
 
     def test_listar_inscricoes_evento_nao_encontrado(self, client):
-        """ValueError do serviço deve ser convertido em 404."""
         c, servico = client
         servico.listar_inscricoes.side_effect = ValueError("Evento não encontrado")
         resposta = c.get("/formulario/eventos/999/inscricoes")
@@ -77,7 +61,6 @@ class TestListarInscricoes:
         assert "Evento não encontrado" in resposta.json()["detail"]
 
     def test_listar_inscricoes_erro_google_retorna_502(self, client):
-        """RuntimeError (falha na API do Google) deve ser convertido em 502."""
         c, servico = client
         servico.listar_inscricoes.side_effect = RuntimeError(
             "Falha ao acessar Google Forms"
@@ -87,12 +70,10 @@ class TestListarInscricoes:
         assert "Falha ao acessar Google Forms" in resposta.json()["detail"]
 
     def test_listar_inscricoes_chama_servico_com_parametros_corretos(self, client):
-        """Verifica que o controller passa db e evento_id corretamente ao serviço."""
         c, servico = client
         servico.listar_inscricoes.return_value = []
         c.get("/formulario/eventos/42/inscricoes")
         args, _ = servico.listar_inscricoes.call_args
-        # segundo argumento deve ser o evento_id
         assert args[1] == 42
 
     @pytest.mark.parametrize("evento_id", [1, 5, 10, 100])

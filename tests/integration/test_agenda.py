@@ -1,10 +1,3 @@
-"""Testes de integração para o módulo agenda (Google Calendar).
-
-Estratégia: como o RepositorioAgenda é instanciado diretamente dentro
-de cada função de rota (sem Depends), usamos unittest.mock.patch para
-interceptar a instanciação da classe no momento em que o router a usa.
-"""
-
 import pytest
 from datetime import date, datetime, timezone
 from fastapi import FastAPI
@@ -14,10 +7,6 @@ from unittest.mock import MagicMock, patch
 from src.agenda.router import router
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
 @pytest.fixture
 def client():
     app = FastAPI()
@@ -25,9 +14,6 @@ def client():
     return TestClient(app)
 
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
 
 EVENTO_RESPONSE = {
     "id_google": "abc123",
@@ -57,14 +43,10 @@ RESPOSTA_EVENTO_CRIADO = {
 TOKEN_VALIDO = "Bearer token-google-valido"
 
 
-# ---------------------------------------------------------------------------
-# GET /agenda/evento
-# ---------------------------------------------------------------------------
 
 class TestListarEvento:
 
     def test_listar_sem_token_retorna_mocks(self, client):
-        """Sem token, o repositório retorna dados mock internos — rota pública."""
         with patch("src.agenda.router.RepositorioAgenda") as MockRepo:
             from src.agenda.schema import EventoResponse
             MockRepo.return_value.listar_evento.return_value = [
@@ -96,7 +78,6 @@ class TestListarEvento:
         assert resposta.json() == []
 
     def test_listar_repassa_token_ao_repositorio(self, client):
-        """Verifica que o token do header é passado corretamente ao repositório."""
         with patch("src.agenda.router.RepositorioAgenda") as MockRepo:
             MockRepo.return_value.listar_evento.return_value = []
             client.get(
@@ -114,7 +95,6 @@ class TestListarEvento:
 
     @pytest.mark.parametrize("meses_invalido", [0, 25, -1])
     def test_listar_parametro_meses_invalido_retorna_422(self, client, meses_invalido):
-        """meses deve estar entre 1 e 24 (Query(ge=1, le=24))."""
         resposta = client.get(f"/agenda/evento?meses={meses_invalido}")
         assert resposta.status_code == 422
 
@@ -131,9 +111,6 @@ class TestListarEvento:
         assert len(resposta.json()) == 3
 
 
-# ---------------------------------------------------------------------------
-# POST /agenda/evento
-# ---------------------------------------------------------------------------
 
 class TestCriarEvento:
 
@@ -153,13 +130,11 @@ class TestCriarEvento:
         assert resposta.json()["titulo"] == RESPOSTA_EVENTO_CRIADO["titulo"]
 
     def test_criar_evento_sem_token_retorna_401(self, client):
-        """POST sem token deve retornar 401 — verificado antes de chamar o repositório."""
         resposta = client.post("/agenda/evento", json=SOLICITACAO_EVENTO)
         assert resposta.status_code == 401
         assert "Token de acesso ausente" in resposta.json()["detail"]
 
     def test_criar_evento_erro_google_retorna_502(self, client):
-        """RuntimeError do repositório deve ser convertido em 502 Bad Gateway."""
         with patch("src.agenda.router.RepositorioAgenda") as MockRepo:
             MockRepo.return_value.criar_evento.side_effect = RuntimeError(
                 "Falha ao criar evento no Google Calendar"
@@ -205,9 +180,6 @@ class TestCriarEvento:
             MockRepo.assert_called_once_with(token_acesso=TOKEN_VALIDO)
 
 
-# ---------------------------------------------------------------------------
-# DELETE /agenda/evento/{id_google}
-# ---------------------------------------------------------------------------
 
 class TestExcluirEvento:
 
