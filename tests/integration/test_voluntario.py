@@ -1,7 +1,4 @@
-"""
-Testes de integração para o módulo de voluntários.
-Usa dependency_overrides do FastAPI para simular banco e autenticação.
-"""
+
 import pytest
 from unittest.mock import MagicMock
 from fastapi import FastAPI

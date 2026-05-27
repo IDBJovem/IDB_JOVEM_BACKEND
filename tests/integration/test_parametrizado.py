@@ -1,14 +1,3 @@
-"""
-Testes parametrizados — arquivo dedicado.
-
-Agrupa todos os testes que usam @pytest.mark.parametrize do projeto,
-separados dos testes de integração simples para facilitar identificação
-e execução isolada.
-
-Para rodar apenas este arquivo:
-    pytest tests/integration/test_parametrizado.py -v
-"""
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient

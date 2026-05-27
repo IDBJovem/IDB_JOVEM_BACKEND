@@ -1,7 +1,3 @@
-"""
-Testes de integração para as rotas da aplicação.
-Cobre: rota raiz, health check e criação de evento (POST /events).
-"""
 import pytest
 
 
@@ -51,7 +47,6 @@ PAYLOADS_VALIDOS = [
 
 @pytest.mark.parametrize("payload,esperado", PAYLOADS_VALIDOS)
 def test_criar_evento_payload_valido(client, payload, esperado):
-    """Garante que POST /events retorna 201 e o corpo correto para payloads válidos."""
     response = client.post("/events", json=payload)
     assert response.status_code == 201
     assert response.json() == esperado
@@ -67,6 +62,5 @@ PAYLOADS_INVALIDOS = [
 
 @pytest.mark.parametrize("payload", PAYLOADS_INVALIDOS)
 def test_criar_evento_payload_invalido_retorna_422(client, payload):
-    """Garante que o FastAPI rejeita payloads incompletos com 422."""
     response = client.post("/events", json=payload)
     assert response.status_code == 422

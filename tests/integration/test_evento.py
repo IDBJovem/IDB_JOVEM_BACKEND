@@ -1,8 +1,4 @@
-"""
-Testes de integração para o módulo de eventos.
-Usa dependency_overrides do FastAPI para simular banco e autenticação,
-testando apenas o comportamento das rotas HTTP.
-"""
+
 import pytest
 from unittest.mock import MagicMock
 from fastapi import FastAPI

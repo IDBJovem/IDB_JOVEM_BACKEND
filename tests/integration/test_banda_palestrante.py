@@ -1,5 +1,3 @@
-"""Testes de integração para o módulo banda_palestrante."""
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -9,9 +7,6 @@ from src.banda_palestrante.controller import router, get_servico
 from src.security import obter_usuario_atual
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
 USUARIO_ADMIN = {"sub": "uuid-admin", "realm_access": {"roles": ["admin", "superadmin"]}}
 
@@ -32,10 +27,6 @@ def client(mock_servico):
     app.dependency_overrides.clear()
 
 
-# ---------------------------------------------------------------------------
-# Dados de teste
-# ---------------------------------------------------------------------------
-
 BANDA_VALIDA = {
     "nome": "Banda Teste",
     "link_foto": "https://exemplo.com/foto.jpg",
@@ -47,9 +38,6 @@ BANDA_MINIMA = {"nome": "Só o Nome"}
 RESPOSTA_BANDA_MINIMA = {**BANDA_MINIMA, "link_foto": None, "profissao": None, "participante_id": 2}
 
 
-# ---------------------------------------------------------------------------
-# POST /banda-palestrante/
-# ---------------------------------------------------------------------------
 
 class TestCriarBandaPalestrante:
 
@@ -62,7 +50,6 @@ class TestCriarBandaPalestrante:
         servico.criar_banda_palestrante.assert_called_once()
 
     def test_criar_apenas_com_nome(self, client):
-        """Campos opcionais ausentes devem ser aceitos."""
         c, servico = client
         servico.criar_banda_palestrante.return_value = RESPOSTA_BANDA_MINIMA
         resposta = c.post("/banda-palestrante/", json=BANDA_MINIMA)
@@ -90,9 +77,6 @@ class TestCriarBandaPalestrante:
         assert resposta.json()["nome"] == nome
 
 
-# ---------------------------------------------------------------------------
-# GET /banda-palestrante/
-# ---------------------------------------------------------------------------
 
 class TestListarBandaPalestrantes:
 
@@ -112,7 +96,6 @@ class TestListarBandaPalestrantes:
         assert resposta.json() == []
 
     def test_listar_nao_exige_autenticacao(self, client):
-        """GET / não tem verificar_roles no controller — deve ser público."""
         c, servico = client
         servico.listar_banda_palestrantes.return_value = [RESPOSTA_BANDA]
         resposta = c.get("/banda-palestrante/")
@@ -129,9 +112,6 @@ class TestListarBandaPalestrantes:
         assert len(resposta.json()) == 4
 
 
-# ---------------------------------------------------------------------------
-# GET /banda-palestrante/{participante_id}
-# ---------------------------------------------------------------------------
 
 class TestBuscarBandaPalestrante:
 
@@ -160,9 +140,6 @@ class TestBuscarBandaPalestrante:
         assert resposta.json()["participante_id"] == participante_id
 
 
-# ---------------------------------------------------------------------------
-# DELETE /banda-palestrante/{participante_id}
-# ---------------------------------------------------------------------------
 
 class TestDeletarBandaPalestrante:
 
