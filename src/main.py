@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
 from src.config import configuracoes
@@ -14,6 +15,17 @@ from src.drive.controller import router as drive_routers
 from src.mapa.controller import router as mapa_routers
 
 app = FastAPI(title="IDB Jovem Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_middleware(SessionMiddleware, secret_key=configuracoes.SECRET_KEY)
 
