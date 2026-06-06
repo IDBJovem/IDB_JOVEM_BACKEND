@@ -16,12 +16,15 @@ from src.mapa.controller import router as mapa_routers
 
 app = FastAPI(title="IDB Jovem Backend")
 
+origens_permitidas = [
+    origem.strip()
+    for origem in configuracoes.CORS_ORIGINS.split(",")
+    if origem.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ],
+    allow_origins=origens_permitidas,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

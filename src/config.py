@@ -17,7 +17,9 @@ class ConfiguracoesAmbiente(BaseSettings):
 
     SECRET_KEY: str = "dev-secret"
 
-    SECRET_KEY: str = "dev-secret"
+    # Origens (front-ends) autorizadas a consumir a API via navegador.
+    # Lista separada por virgula. Em producao, defina o dominio real no .env.
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
