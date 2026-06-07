@@ -72,12 +72,12 @@ class ServicoCalendario:
 
         dados = json.loads(corpo)
         itens = dados.get("items", [])
-        evento: list[RespostaEvento] = []
+        eventos: list[RespostaEvento] = []
         for registro in itens:
             evento = self._converter_evento(registro)
             if evento:
-                evento.append(evento)
-        return evento
+                eventos.append(evento)
+        return eventos
 
     def listar_evento(self) -> list[RespostaEvento]:
         """
