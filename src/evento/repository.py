@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from src.evento.model import Evento
+from src.banda_palestrante.model import BandaPalestrante, Participa
 
 
 class RepositorioEvento:
@@ -40,3 +41,41 @@ class RepositorioEvento:
             termo=termo,
             termo_like=f"%{termo}%"
         ).all()
+
+    def buscar_participantes(self, evento_id: int) -> list[BandaPalestrante]:
+        return (
+            self.db.query(BandaPalestrante)
+            .join(
+                Participa,
+                Participa.participante_id == BandaPalestrante.participante_id,
+            )
+            .filter(Participa.evento_id == evento_id)
+            .all()
+        )
+
+    def buscar_participante_por_id(self, participante_id: int) -> BandaPalestrante | None:
+        return (
+            self.db.query(BandaPalestrante)
+            .filter(BandaPalestrante.participante_id == participante_id)
+            .first()
+        )
+
+    def buscar_vinculo(self, evento_id: int, participante_id: int) -> Participa | None:
+        return (
+            self.db.query(Participa)
+            .filter(
+                Participa.evento_id == evento_id,
+                Participa.participante_id == participante_id,
+            )
+            .first()
+        )
+
+    def vincular_participante(self, evento_id: int, participante_id: int) -> Participa:
+        vinculo = Participa(evento_id=evento_id, participante_id=participante_id)
+        self.db.add(vinculo)
+        self.db.commit()
+        return vinculo
+
+    def desvincular_participante(self, vinculo: Participa) -> None:
+        self.db.delete(vinculo)
+        self.db.commit()

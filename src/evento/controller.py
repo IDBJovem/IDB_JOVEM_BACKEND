@@ -10,6 +10,7 @@ from src.calendario.service import ServicoCalendario
 from src.drive.schema import RespostaDrive
 from src.drive.service import ServicoDrive
 from src.mapa.service import ServicoMapa
+from src.banda_palestrante.schema import RespostaBandaPalestrante
 from src.security import verificar_roles
 
 router = APIRouter(prefix="/evento", tags=["evento"])
@@ -102,3 +103,50 @@ def listar_galeria_evento(
 
     except RuntimeError as erro:
         raise HTTPException(status_code=502, detail=str(erro)) from erro
+
+
+@router.get(
+    "/{evento_id}/participantes",
+    response_model=list[RespostaBandaPalestrante],
+)
+def listar_participantes_evento(
+    evento_id: int,
+    servico: ServicoEvento = Depends(get_servico),
+):
+    try:
+        return servico.listar_participantes(evento_id)
+    except ValueError as erro:
+        raise HTTPException(status_code=404, detail=str(erro)) from erro
+
+
+@router.post(
+    "/{evento_id}/participantes/{participante_id}",
+    response_model=RespostaBandaPalestrante,
+    status_code=status.HTTP_201_CREATED,
+)
+def adicionar_participante_evento(
+    evento_id: int,
+    participante_id: int,
+    servico: ServicoEvento = Depends(get_servico),
+    _: dict = Depends(verificar_roles(["admin", "superadmin"])),
+):
+    try:
+        return servico.adicionar_participante(evento_id, participante_id)
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro)) from erro
+
+
+@router.delete(
+    "/{evento_id}/participantes/{participante_id}",
+    status_code=204,
+)
+def remover_participante_evento(
+    evento_id: int,
+    participante_id: int,
+    servico: ServicoEvento = Depends(get_servico),
+    _: dict = Depends(verificar_roles(["admin", "superadmin"])),
+):
+    try:
+        servico.remover_participante(evento_id, participante_id)
+    except ValueError as erro:
+        raise HTTPException(status_code=404, detail=str(erro)) from erro

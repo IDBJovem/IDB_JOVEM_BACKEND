@@ -93,4 +93,28 @@ class ServicoEvento:
             return []
 
         return self.repositorio.pesquisar_por_nome(termo)
+
+    def listar_participantes(self, evento_id: int):
+        self.buscar_evento(evento_id)
+        return self.repositorio.buscar_participantes(evento_id)
+
+    def adicionar_participante(self, evento_id: int, participante_id: int):
+        self.buscar_evento(evento_id)
+
+        participante = self.repositorio.buscar_participante_por_id(participante_id)
+        if not participante:
+            raise ValueError("Banda ou palestrante não encontrado.")
+
+        if self.repositorio.buscar_vinculo(evento_id, participante_id):
+            raise ValueError("Participante já vinculado a este evento.")
+
+        self.repositorio.vincular_participante(evento_id, participante_id)
+        return participante
+
+    def remover_participante(self, evento_id: int, participante_id: int):
+        vinculo = self.repositorio.buscar_vinculo(evento_id, participante_id)
+        if not vinculo:
+            raise ValueError("Vínculo entre evento e participante não encontrado.")
+
+        self.repositorio.desvincular_participante(vinculo)
     

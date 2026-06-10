@@ -129,3 +129,77 @@ class TestDeletarEvento:
         servico.deletar_evento.side_effect = ValueError("Evento não encontrado")
         response = client.delete("/evento/999")
         assert response.status_code == 404
+
+
+PARTICIPANTE_RESPOSTA = {
+    "participante_id": 1,
+    "nome": "DJ Fulano",
+    "link_foto": "https://exemplo.com/foto.jpg",
+    "profissao": "Palestrante",
+}
+
+
+class TestListarParticipantesEvento:
+    def test_retorna_200_com_lista(self, client_evento):
+        client, servico = client_evento
+        servico.listar_participantes.return_value = [PARTICIPANTE_RESPOSTA]
+        response = client.get("/evento/1/participantes")
+        assert response.status_code == 200
+        assert response.json()[0]["participante_id"] == 1
+        servico.listar_participantes.assert_called_once_with(1)
+
+    def test_retorna_200_com_lista_vazia(self, client_evento):
+        client, servico = client_evento
+        servico.listar_participantes.return_value = []
+        response = client.get("/evento/1/participantes")
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_retorna_404_quando_evento_nao_existe(self, client_evento):
+        client, servico = client_evento
+        servico.listar_participantes.side_effect = ValueError("Evento não encontrado.")
+        response = client.get("/evento/999/participantes")
+        assert response.status_code == 404
+
+
+class TestAdicionarParticipanteEvento:
+    def test_retorna_201_quando_vincula(self, client_evento):
+        client, servico = client_evento
+        servico.adicionar_participante.return_value = PARTICIPANTE_RESPOSTA
+        response = client.post("/evento/1/participantes/1")
+        assert response.status_code == 201
+        assert response.json()["participante_id"] == 1
+        servico.adicionar_participante.assert_called_once_with(1, 1)
+
+    def test_retorna_400_quando_participante_nao_existe(self, client_evento):
+        client, servico = client_evento
+        servico.adicionar_participante.side_effect = ValueError(
+            "Banda ou palestrante não encontrado."
+        )
+        response = client.post("/evento/1/participantes/999")
+        assert response.status_code == 400
+
+    def test_retorna_400_quando_vinculo_duplicado(self, client_evento):
+        client, servico = client_evento
+        servico.adicionar_participante.side_effect = ValueError(
+            "Participante já vinculado a este evento."
+        )
+        response = client.post("/evento/1/participantes/1")
+        assert response.status_code == 400
+
+
+class TestRemoverParticipanteEvento:
+    def test_retorna_204_quando_desvincula(self, client_evento):
+        client, servico = client_evento
+        servico.remover_participante.return_value = None
+        response = client.delete("/evento/1/participantes/1")
+        assert response.status_code == 204
+        servico.remover_participante.assert_called_once_with(1, 1)
+
+    def test_retorna_404_quando_vinculo_nao_existe(self, client_evento):
+        client, servico = client_evento
+        servico.remover_participante.side_effect = ValueError(
+            "Vínculo entre evento e participante não encontrado."
+        )
+        response = client.delete("/evento/1/participantes/999")
+        assert response.status_code == 404
