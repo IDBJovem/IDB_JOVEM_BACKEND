@@ -23,7 +23,13 @@ class ServicoDrive:
         except Exception as erro:
             raise RuntimeError("Falha automatica ao renovar credenciais do Google para o Drive") from erro
 
+    @staticmethod
+    def _escapar_valor_consulta(valor: str) -> str:
+        """Escapa barra invertida e aspa simples para uso seguro na query da Drive API."""
+        return valor.replace("\\", "\\\\").replace("'", "\\'")
+
     def _montar_url_busca_pasta(self, nome_pasta: str) -> str:
+        nome_pasta = self._escapar_valor_consulta(nome_pasta)
         consulta = (
             "mimeType='application/vnd.google-apps.folder' "
             f"and name='{nome_pasta}' and trashed=false"
@@ -53,7 +59,7 @@ class ServicoDrive:
         return f"https://www.googleapis.com/drive/v3/files?{urlencode(parametros)}"
 
     def _montar_url_visualizacao(self, id_arquivo: str) -> str:
-        return f"https://drive.google.com/uc?export=view&id={id_arquivo}"
+        return f"https://drive.google.com/thumbnail?id={id_arquivo}&sz=w1000"
 
     def _buscar_pasta_id(self, token: str, nome_pasta: str) -> str | None:
 
