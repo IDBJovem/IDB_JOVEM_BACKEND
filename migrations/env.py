@@ -13,6 +13,7 @@ import src.banda_palestrante.model
 import src.evento.model
 import src.produto.model
 import src.voluntario.models
+import src.lider.model
 
 config = context.config
 
