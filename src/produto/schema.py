@@ -5,6 +5,7 @@ class BaseProduto(BaseModel):
     nome: str
     descricao: str | None = None
     link_produto: str | None = None
+    link_imagem: str | None = None
 
 
 class SolicitacaoProduto(BaseProduto):
