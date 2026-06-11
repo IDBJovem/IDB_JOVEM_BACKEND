@@ -6,7 +6,6 @@ from src.security import verificar_roles
 from src.produto.repository import RepositorioProduto
 from src.produto.service import ServicoProduto
 from src.produto.schema import SolicitacaoProduto, RespostaProduto
-from src.drive.service import ServicoDrive
 
 
 router = APIRouter(prefix="/produto", tags=["produto"])
@@ -14,7 +13,7 @@ router = APIRouter(prefix="/produto", tags=["produto"])
 
 def get_servico(db: Session = Depends(obter_banco)):
     repositorio = RepositorioProduto(db)
-    return ServicoProduto(repositorio, ServicoDrive())
+    return ServicoProduto(repositorio)
 
 
 @router.post("/", response_model=RespostaProduto, status_code=status.HTTP_201_CREATED)
