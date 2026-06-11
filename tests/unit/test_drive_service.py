@@ -55,8 +55,47 @@ class TestServicoDrive:
     def test_montar_url_visualizacao(self, mock_auth_class):
         servico = ServicoDrive()
         url = servico._montar_url_visualizacao("file-id-123")
-        assert "file-id-123" in url
-        assert "drive.google.com" in url
+        assert url.endswith("/drive/imagem/file-id-123")
+
+    @patch("src.drive.service.urlopen")
+    @patch("src.drive.service.ServicoAuth")
+    def test_baixar_imagem_sucesso(self, mock_auth_class, mock_urlopen):
+        mock_resposta = MagicMock()
+        mock_resposta.headers.get.return_value = "image/jpeg"
+        mock_resposta.read.side_effect = [b"dados", b""]
+        mock_urlopen.return_value = mock_resposta
+
+        servico = ServicoDrive()
+        servico._obter_token_valido = MagicMock(return_value="token")
+
+        content_type, conteudo = servico.baixar_imagem("file-id-123")
+        assert content_type == "image/jpeg"
+        assert b"".join(conteudo) == b"dados"
+        mock_resposta.close.assert_called_once()
+
+    @patch("src.drive.service.urlopen")
+    @patch("src.drive.service.ServicoAuth")
+    def test_baixar_imagem_nao_encontrada(self, mock_auth_class, mock_urlopen):
+        mock_urlopen.side_effect = HTTPError(
+            url="http://test.com", code=404, msg="Not Found", hdrs=None, fp=None
+        )
+        servico = ServicoDrive()
+        servico._obter_token_valido = MagicMock(return_value="token")
+
+        with pytest.raises(ValueError, match="não encontrada"):
+            servico.baixar_imagem("inexistente")
+
+    @patch("src.drive.service.urlopen")
+    @patch("src.drive.service.ServicoAuth")
+    def test_baixar_imagem_erro_drive(self, mock_auth_class, mock_urlopen):
+        mock_urlopen.side_effect = HTTPError(
+            url="http://test.com", code=500, msg="Error", hdrs=None, fp=None
+        )
+        servico = ServicoDrive()
+        servico._obter_token_valido = MagicMock(return_value="token")
+
+        with pytest.raises(RuntimeError, match="Falha ao baixar imagem"):
+            servico.baixar_imagem("file-id-123")
 
     @patch("src.drive.service.urlopen")
     @patch("src.drive.service.ServicoAuth")

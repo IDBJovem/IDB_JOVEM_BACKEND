@@ -17,6 +17,11 @@ class ConfiguracoesAmbiente(BaseSettings):
 
     SECRET_KEY: str = "dev-secret"
 
+    # URL publica deste backend, usada para montar os links do proxy de imagens
+    # do Drive (ex.: http://localhost:8000/drive/imagem/{file_id}).
+    # Em producao, defina o dominio real da API no .env.
+    BASE_URL: str = "http://localhost:8000"
+
     # Origens (front-ends) autorizadas a consumir a API via navegador.
     # Lista separada por virgula. Em producao, defina o dominio real no .env.
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"

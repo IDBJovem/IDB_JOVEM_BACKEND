@@ -1,5 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+from src.drive.utils import converter_link_para_proxy
 
 
 class BaseEvento(BaseModel):
@@ -26,3 +28,8 @@ class RespostaEvento(BaseEvento):
 
     class Config:
         from_attributes = True
+
+    @field_validator("link_imagem")
+    @classmethod
+    def _link_imagem_para_proxy(cls, valor: str | None) -> str | None:
+        return converter_link_para_proxy(valor)

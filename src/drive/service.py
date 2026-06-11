@@ -1,10 +1,12 @@
 import os
 import json
+from typing import Iterator
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from src.drive.schema import RespostaDrive
+from src.drive.utils import montar_url_proxy
 from src.auth.service import ServicoAuth
 
 class ServicoDrive:
@@ -59,7 +61,7 @@ class ServicoDrive:
         return f"https://www.googleapis.com/drive/v3/files?{urlencode(parametros)}"
 
     def _montar_url_visualizacao(self, id_arquivo: str) -> str:
-        return f"https://drive.google.com/thumbnail?id={id_arquivo}&sz=w1000"
+        return montar_url_proxy(id_arquivo)
 
     def _buscar_pasta_id(self, token: str, nome_pasta: str) -> str | None:
 
@@ -139,3 +141,50 @@ class ServicoDrive:
             raise ValueError("Pasta do Google Drive não encontrada")
 
         return self._buscar_fotos_drive(token, id_pasta)
+
+    def baixar_imagem(self, file_id: str) -> tuple[str, Iterator[bytes]]:
+        """
+        Baixa os bytes de um arquivo do Drive (files.get_media via alt=media)
+        usando as credenciais do servidor. Retorna o Content-Type e um gerador
+        que transmite o conteudo em blocos, fechando a conexao ao final.
+
+        Lanca ValueError se o arquivo nao existir/sem acesso (404) e RuntimeError
+        para demais falhas do Drive.
+        """
+        token = self._obter_token_valido()
+
+        url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+
+        requisicao = Request(url)
+        requisicao.add_header("Authorization", f"Bearer {token}")
+
+        try:
+            resposta = urlopen(requisicao, timeout=15)
+
+        except HTTPError as erro:
+            if erro.code == 404:
+                raise ValueError("Imagem não encontrada no Google Drive") from erro
+            raise RuntimeError(
+                "Falha ao baixar imagem do Google Drive"
+            ) from erro
+
+        except URLError as erro:
+            raise RuntimeError(
+                "Falha ao baixar imagem do Google Drive"
+            ) from erro
+
+        content_type = resposta.headers.get(
+            "Content-Type", "application/octet-stream"
+        )
+
+        def gerar_blocos() -> Iterator[bytes]:
+            try:
+                while True:
+                    bloco = resposta.read(64 * 1024)
+                    if not bloco:
+                        break
+                    yield bloco
+            finally:
+                resposta.close()
+
+        return content_type, gerar_blocos()
