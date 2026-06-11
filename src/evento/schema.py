@@ -11,6 +11,7 @@ class BaseEvento(BaseModel):
     data_fim: datetime
     link_galeria: str | None = None
     formulario_link: str | None = None
+    link_imagem: str | None = None
 
 class SolicitacaoEvento(BaseEvento):
     """"

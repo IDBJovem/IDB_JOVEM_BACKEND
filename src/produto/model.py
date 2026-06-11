@@ -9,3 +9,4 @@ class Produto(Base):
     nome         = Column(Text, nullable=False)
     descricao    = Column(Text, nullable=True)
     link_produto = Column(Text, nullable=True)
+    link_imagem  = Column(Text, nullable=True)

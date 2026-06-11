@@ -16,3 +16,4 @@ class Evento(Base):
     link_galeria         = Column(Text, nullable=True)
     nome_local           = Column(Text, nullable=True)
     formulario_link      = Column(Text, nullable=True)
+    link_imagem          = Column(Text, nullable=True)
