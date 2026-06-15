@@ -20,7 +20,7 @@ def get_servico(db: Session = Depends(obter_banco)):
 def criar_produto(
     solicitacao: SolicitacaoProduto,
     servico: ServicoProduto = Depends(get_servico),
-    _: dict = Depends(verificar_roles(["admin", "superadmin"])),
+    _: dict = Depends(verificar_roles(["superadmin"])),
 ):
     return servico.criar_produto(solicitacao)
 
@@ -49,7 +49,7 @@ def atualizar_produto(
     produto_id: int,
     solicitacao: SolicitacaoProduto,
     servico: ServicoProduto = Depends(get_servico),
-    _: dict = Depends(verificar_roles(["admin", "superadmin"])),
+    _: dict = Depends(verificar_roles(["superadmin"])),
 ):
     try:
         return servico.atualizar_produto(produto_id, solicitacao)
@@ -62,7 +62,7 @@ def atualizar_produto(
 def deletar_produto(
     produto_id: int,
     servico: ServicoProduto = Depends(get_servico),
-    _: dict = Depends(verificar_roles(["admin", "superadmin"])),
+    _: dict = Depends(verificar_roles(["superadmin"])),
 ):
     try:
         servico.deletar_produto(produto_id)
