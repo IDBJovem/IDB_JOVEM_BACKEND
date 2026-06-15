@@ -1,0 +1,15 @@
+{
+	# E-mail usado pela Let's Encrypt para avisos de expiração de certificado.
+	# Troque pelo seu e-mail real.
+	email seu-email@exemplo.com
+}
+
+# API (FastAPI). O Caddy gera e renova o certificado HTTPS automaticamente.
+api.{$DOMAIN} {
+	reverse_proxy jovem-backend:8000
+}
+
+# Keycloak (autenticação).
+auth.{$DOMAIN} {
+	reverse_proxy keycloak:8080
+}
